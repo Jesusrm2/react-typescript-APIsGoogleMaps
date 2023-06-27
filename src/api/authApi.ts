@@ -1,7 +1,7 @@
 import axios from "axios";
 
 
-const BASE_URL = "https://customized-trips-0b578742d7c2.herokuapp.com";
+const BASE_URL = "https://rest-server-01-bb365220825b.herokuapp.com/";
 
 export const authApi = axios.create({
   baseURL: BASE_URL
