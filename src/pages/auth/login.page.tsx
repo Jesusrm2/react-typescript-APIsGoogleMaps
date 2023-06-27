@@ -13,6 +13,7 @@ import { authApi } from "../../api/authApi";
 import { Box, Container, Grid, Typography } from "@mui/material";
 import AuthContext from "../../contexts/auth/authContext";
 import { ILoginResponse } from "../../api/types";
+import imagen from "../../assets/auth.png";
 
 const loginSchema = object({
   email: string()
@@ -171,7 +172,7 @@ Bienvenido
           <Box
             sx={{
               width:"80vh",
-              backgroundImage: `url(../../../assets/auth.png`,
+              backgroundImage: `url(../../../assets/auth.png)`,
               backgroundSize: "cover",
               backgroundPosition: "center",
               minHeight: "100%",
