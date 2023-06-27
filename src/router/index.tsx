@@ -13,13 +13,8 @@ import RequestSite from "../pages/dueño/solicitar";
 
 
 const authRoutes: RouteObject = {
-  path: "*",
-  children: [
-    {
-      path: "login",
-      element: <LoginPage />,
-    }
-  ],
+  path: "/",
+  element: <LoginPage />,
 };
 
 const normalRoutes: RouteObject = {
