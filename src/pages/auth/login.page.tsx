@@ -171,7 +171,7 @@ Bienvenido
           <Box
             sx={{
               width:"80vh",
-              backgroundImage: `url('../../assets/auth.png')`,
+              backgroundImage: `url(../../assets/auth.png)`,
               backgroundSize: "cover",
               backgroundPosition: "center",
               minHeight: "100%",
