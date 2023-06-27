@@ -23,7 +23,7 @@ const RequestSite = () => {
 
   return (
     <div>
-      <h1>Aquí SOLICITARE el historial de guias</h1>
+      <h1>Aquí SOLICITARE REGISTRAAR UN LUGAR</h1>
       <p>ID: {user?.per_id}</p>
       <p>Nombre: {user?.per_nombres}</p>
       <p>Token: {JSON.stringify(decodedToken)}</p>
