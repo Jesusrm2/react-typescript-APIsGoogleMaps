@@ -171,7 +171,7 @@ Bienvenido
           <Box
             sx={{
               width:"80vh",
-              backgroundImage: `url(https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRFbTNmzbm13hDKsd-PGH7i0EnWEYlUYOW1SefPBpg&s)`,
+              backgroundImage: `url(../../../assets/auth.png`,
               backgroundSize: "cover",
               backgroundPosition: "center",
               minHeight: "100%",
