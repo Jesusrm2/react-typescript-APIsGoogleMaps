@@ -3,13 +3,13 @@ import { ThemeProvider } from '@mui/material';
 import { themeCreator } from './base';
 
 export const ThemeContext = React.createContext(
-  (themeName: string): void => {}
+  (_: string): void => {}
 );
 
 const ThemeProviderWrapper: React.FC<React.PropsWithChildren<{}>> = (props) => {
   const curThemeName = localStorage.getItem('appTheme') || 'PureLightTheme';
-  const [themeName, _setThemeName] = useState(curThemeName);
-  const theme = themeCreator(themeName);
+  const [_, _setThemeName] = useState(curThemeName);
+  const theme = themeCreator(curThemeName);
   const setThemeName = (themeName: string): void => {
     localStorage.setItem('appTheme', themeName);
     _setThemeName(themeName);

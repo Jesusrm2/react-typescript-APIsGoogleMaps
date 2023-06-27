@@ -6,6 +6,7 @@ import AuthContext from "../../contexts/auth/authContext";
 import jwtDecode from "jwt-decode";
 import { Ipersona } from "../../api/types";
 
+
 const ProfilePageAdmin = () => {
   const store = useStore();
   const { token, setToken} = useContext(AuthContext);
