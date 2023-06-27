@@ -41,7 +41,7 @@ import { ListWrapper } from '..';
               classes={{ root: 'MuiListItem-indicators' }}
               button
               component={NavLink}
-              to="/request"
+              to="/perfil/request"
             >
               <ListItemText
                 primaryTypographyProps={{ noWrap: true }}
@@ -52,7 +52,7 @@ import { ListWrapper } from '..';
               classes={{ root: 'MuiListItem-indicators' }}
               button
               component={NavLink}
-              to="/history"
+              to="/perfil/history"
             >
               <ListItemText
                 primaryTypographyProps={{ noWrap: true }}

@@ -41,7 +41,7 @@ function HeaderMenuTurista() {
             classes={{ root: 'MuiListItem-indicators' }}
             button
             component={NavLink}
-            to="/generate"
+            to="/perfil/generate"
           >
             <ListItemText
               primaryTypographyProps={{ noWrap: true }}
@@ -52,7 +52,7 @@ function HeaderMenuTurista() {
             classes={{ root: 'MuiListItem-indicators' }}
             button
             component={NavLink}
-            to="/history"
+            to="/perfil/history"
           >
             <ListItemText
               primaryTypographyProps={{ noWrap: true }}

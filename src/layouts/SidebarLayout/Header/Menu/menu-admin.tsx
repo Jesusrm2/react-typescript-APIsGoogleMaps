@@ -38,7 +38,7 @@ import { ListWrapper } from '..';
               classes={{ root: 'MuiListItem-indicators' }}
               button
               component={NavLink}
-              to="/generate"
+              to="/perfil/generate"
             >
               <ListItemText
                 primaryTypographyProps={{ noWrap: true }}
@@ -47,9 +47,8 @@ import { ListWrapper } from '..';
             </ListItem>
             <ListItem
               classes={{ root: 'MuiListItem-indicators' }}
-              button
               component={NavLink}
-              to="/history"
+              to="/perfil/history"
             >
               <ListItemText
                 primaryTypographyProps={{ noWrap: true }}

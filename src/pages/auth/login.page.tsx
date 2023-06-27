@@ -60,13 +60,13 @@ const LoginPage = () => {
 
       switch (res.data.usuario.rol_id) {
         case 1:
-          navigate("/profile-admin");
+          navigate("/perfil/profile-admin");
           break;
         case 2:
-          navigate("/profile-duenio");
+          navigate("/perfil/profile-duenio");
           break;
         case 3:
-          navigate("/profile-turista");
+          navigate("/perfil/profile-turista");
           break;
         default:
           break;
