@@ -178,7 +178,7 @@ Bienvenido
               minHeight: "100%",
             }}
             
-          ><img src={imagen} alt='logo' with='200px'></img></Box>
+          ><img src={imagen} alt='logo' width='200px'></img></Box>
         </Grid>
       </Grid>
     </Container>
