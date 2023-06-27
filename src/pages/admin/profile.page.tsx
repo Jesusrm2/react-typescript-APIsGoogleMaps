@@ -4,6 +4,7 @@ import { authApi } from "../../api/authApi";
 import useStore from "../../store";
 import AuthContext from "../../contexts/auth/authContext";
 import jwtDecode from "jwt-decode";
+import { Ipersona } from "../../api/types";
 
 const ProfilePageAdmin = () => {
   const store = useStore();

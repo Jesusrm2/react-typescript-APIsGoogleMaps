@@ -1,4 +1,5 @@
 import axios from "axios";
+import { IUsuario } from "./types";
 
 
 const BASE_URL = "https://rest-server-01-bb365220825b.herokuapp.com/";

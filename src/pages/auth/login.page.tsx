@@ -12,6 +12,7 @@ import { authApi } from "../../api/authApi";
 
 import { Box, Container, Grid, Typography } from "@mui/material";
 import AuthContext from "../../contexts/auth/authContext";
+import { ILoginResponse } from "../../api/types";
 
 const loginSchema = object({
   email: string()

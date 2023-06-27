@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { Ipersona } from '../api/types';
 
 type Store = {
   authUser: Ipersona | null;

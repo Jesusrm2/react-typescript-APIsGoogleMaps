@@ -1,10 +1,10 @@
-interface ILoginResponse {
+export interface ILoginResponse {
   msg: string;
   usuario: IUsuario;
   token: string;
 }
 
-interface IUsuario {
+export interface IUsuario {
   id_user: number;
   per_id: number;
   rol_id: number;
@@ -16,7 +16,7 @@ interface IUsuario {
   updatedAt: string;
 }
 
-interface Ipersona {
+export interface Ipersona {
   per_id: number;
   per_cel: string;
   per_nombres: string;
