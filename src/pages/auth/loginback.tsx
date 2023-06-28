@@ -1,14 +1,16 @@
 import { object, string, TypeOf } from "zod";
 import { useContext, useEffect } from "react";
-import { useForm} from "react-hook-form";
+import { useForm, FormProvider, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import FormInput from "../../components/FormInput";
+import { LoadingButton } from "../../components/LoadingButton";
 import { toast } from 'react-toastify';
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import useStore from "../../store";
-import Link from "@mui/material/Link";
+
 import { authApi } from "../../api/authApi";
 
-import { Box, Button, Checkbox, Container, CssBaseline, FormControlLabel, Grid, Paper, TextField, Typography } from "@mui/material";
+import { Box, Container, CssBaseline, Grid, Paper, Typography } from "@mui/material";
 import AuthContext from "../../contexts/auth/authContext";
 import { ILoginResponse } from "../../api/types";
 
@@ -28,11 +30,14 @@ const LoginPage = () => {
   const { setToken } = useContext(AuthContext);
   const store = useStore();
   const navigate = useNavigate();
+
   const methods = useForm<LoginInput>({
     resolver: zodResolver(loginSchema),
   });
+
   const {
     reset,
+    handleSubmit,
     formState: { isSubmitSuccessful },
   } = methods;
 
@@ -40,25 +45,19 @@ const LoginPage = () => {
     if (isSubmitSuccessful) {
       reset();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isSubmitSuccessful]);
 
-  const loginUser = async (data:any) => {
-    console.log(
-      data.get("email")
-           ,data.get("password")
-          );
+  const loginUser = async (data: LoginInput) => {
     try {
-      
-      const email = data.get("email");
-      const password = data.get("password")
-
       store.setRequestLoading(true);
       const res = await authApi.post<ILoginResponse>("/api/auth/login", {
-        usu_email: email,
-        usu_contra:password,
+        usu_email: data.email,
+        usu_contra: data.password,
       });
       setToken(res.data.token);
       store.setRequestLoading(false);
+
       switch (res.data.usuario.rol_id) {
         case 1:
           navigate("/perfil/profile-admin");
@@ -72,6 +71,9 @@ const LoginPage = () => {
         default:
           break;
       }
+
+
+
     } catch (error: any) {
       store.setRequestLoading(false);
       const resMessage = error.response?.data?.msg || "Usuario / Password no son correctos";
@@ -80,12 +82,11 @@ const LoginPage = () => {
       });
     }
   };
-  const handleSubmit = (event:any) => {
-    event.preventDefault();
-    const data = new FormData(event.currentTarget);
-    loginUser(data);
-  };
 
+  const onSubmitHandler: SubmitHandler<LoginInput> = (values) => {
+    console.log("hola "+values)
+    loginUser(values);
+  };
   return (
     <Container component="main" maxWidth="lg">
     <Box
@@ -102,7 +103,7 @@ const LoginPage = () => {
             sm={4}
             md={7}
             sx={{
-              backgroundImage: "url(https://i.ibb.co/5jYyd8R/imagen.jpg)",
+              backgroundImage: "url(https://source.unsplash.com/random)",
               backgroundRepeat: "no-repeat",
               backgroundColor: (t) =>
                 t.palette.mode === "light"
@@ -129,60 +130,50 @@ const LoginPage = () => {
             }}
             >
              <Typography component="h1" variant="h5">
-             Iniciar sesión
+                Sign in
               </Typography>
 
-              <Box
-                component="form"
-                noValidate
-                onSubmit={handleSubmit}
-                sx={{ mt: 1 }}
-              >
-                <TextField
-                  margin="normal"
-                  required
-                  fullWidth
-                  id="email"
-                  label="Correo electrónico"
-                  name="email"
-                  autoComplete="email"
-                  autoFocus
-                />
-                <TextField
-                  margin="normal"
-                  required
-                  fullWidth
-                  name="password"
-                  label="Contraseña"
-                  type="password"
-                  id="password"
-                  autoComplete="current-password"
-                />
-                <FormControlLabel
-                  control={<Checkbox value="remember" color="primary" />}
-                  label="Recordarme"
-                />
-                <Button
-                  type="submit"
-                  fullWidth
-                  variant="contained"
-                  sx={{ mt: 3, mb: 2 }}
-                >
-                  Iniciar sesión
-                </Button>
-                <Grid container>
-                  <Grid item xs>
-                    <Link href="#" variant="body2">
-                        ¿Has olvidado tu contraseña?
-                    </Link>
+              <FormProvider {...methods}>
+                <form onSubmit={handleSubmit(onSubmitHandler)}>
+                  <Grid container spacing={2}>
+                    <Grid item xs={12}>
+                      
+                      <FormInput
+                        label="Correo"
+                        
+                        name="email"
+                        type="email"
+                      />
+                    </Grid>
+                    <Grid item xs={12}>
+                      <FormInput
+                        label="Contraseña"
+                        name="password"
+                        type="password"
+                      />
+                    </Grid>
+                    <Grid item xs={12} textAlign="right">
+                      <Link to="/forgotpassword">Has olvidado tu contraseña?</Link>
+                    </Grid>
+                    <Grid item xs={12}>
+                      <LoadingButton
+                        
+                        loading={store.requestLoading}
+                      >
+                        Acceso
+                      </LoadingButton>
+                    </Grid>
+                    <Grid item xs={12}>
+                      <Typography variant="body2" align="center">
+                        Necesita una cuenta?{" "}
+                        <Link to="/register" className="text-ct-blue-600">
+                          Registrate aquí
+                        </Link>
+                      </Typography>
+                    </Grid>
                   </Grid>
-                  <Grid item>
-                    <Link href="#" variant="body2">
-                      {"¿Necesita una cuenta? Registrate aquí"}
-                    </Link>
-                  </Grid>
-                </Grid>
-              </Box>
+                </form>
+              </FormProvider>
             </Box>
           </Grid>
           <Grid item xs={12} md={6}>

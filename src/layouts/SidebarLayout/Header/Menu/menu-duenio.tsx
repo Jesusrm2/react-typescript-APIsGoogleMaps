@@ -6,6 +6,7 @@ import {
     Menu,
     MenuItem
   } from '@mui/material';
+
   import { useRef, useState } from 'react';
   import { NavLink } from 'react-router-dom';
 
@@ -63,7 +64,7 @@ import { ListWrapper } from '..';
               classes={{ root: 'MuiListItem-indicators' }}
               button
               component={NavLink}
-              to="/profile-duenio"
+              to="/perfil/profile-duenio"
             >
               <ListItemText
                 primaryTypographyProps={{ noWrap: true }}
