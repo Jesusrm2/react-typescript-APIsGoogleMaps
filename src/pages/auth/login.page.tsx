@@ -11,6 +11,7 @@ import { authApi } from "../../api/authApi";
 import { Box, Button, Checkbox, Container, CssBaseline, FormControlLabel, Grid, Paper, TextField, Typography } from "@mui/material";
 import AuthContext from "../../contexts/auth/authContext";
 import { ILoginResponse } from "../../api/types";
+import jwtDecode from "jwt-decode";
 
 const loginSchema = object({
   email: string()
@@ -25,7 +26,7 @@ const loginSchema = object({
 export type LoginInput = TypeOf<typeof loginSchema>;
 
 const LoginPage = () => {
-  const { setToken } = useContext(AuthContext);
+  const { setToken, setDecodedToken } = useContext(AuthContext);
   const store = useStore();
   const navigate = useNavigate();
   const methods = useForm<LoginInput>({
@@ -58,6 +59,7 @@ const LoginPage = () => {
         usu_contra:password,
       });
       setToken(res.data.token);
+      setDecodedToken(jwtDecode(res.data.token));
       store.setRequestLoading(false);
       switch (res.data.usuario.rol_id) {
         case 1:
