@@ -1,6 +1,6 @@
 import { useContext, useRef, useState } from 'react';
 
-import { Link, NavLink, useNavigate } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 
 import {
   Avatar,
