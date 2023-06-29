@@ -1,6 +1,6 @@
-import { useRef, useState } from 'react';
+import { useContext, useRef, useState } from 'react';
 
-import { Link, NavLink } from 'react-router-dom';
+import { Link, NavLink, useNavigate } from 'react-router-dom';
 
 import {
   Avatar,
@@ -22,6 +22,7 @@ import ExpandMoreTwoToneIcon from '@mui/icons-material/ExpandMoreTwoTone';
 import AccountBoxTwoToneIcon from '@mui/icons-material/AccountBoxTwoTone';
 import LockOpenTwoToneIcon from '@mui/icons-material/LockOpenTwoTone';
 import AccountTreeTwoToneIcon from '@mui/icons-material/AccountTreeTwoTone';
+import AuthContext from '../../../../contexts/auth/authContext';
 
 const UserBoxButton = styled(Button)(
   ({ theme }) => `
@@ -64,16 +65,25 @@ function HeaderUserbox() {
     avatar: 'src/assets/1.jpg',
     jobtitle: 'Project Manager'
   };
-
+  const navigate = useNavigate();
   const ref = useRef<any>(null);
   const [isOpen, setOpen] = useState<boolean>(false);
-
+  const { setDecodedToken , setToken} = useContext(AuthContext);
   const handleOpen = (): void => {
     setOpen(true);
   };
 
   const handleClose = (): void => {
     setOpen(false);
+  };
+  const logoutUser = () => {
+    // Borrar el token del almacenamiento local
+    localStorage.removeItem("token");
+    // Restablecer los valores en el contexto
+    setToken(null);
+    setDecodedToken(null);
+    // Redirigir a la página de inicio de sesión u otra página según sea necesario
+    navigate("/");
   };
 
   return (
@@ -135,7 +145,7 @@ function HeaderUserbox() {
         </List>
         <Divider />
         <Box sx={{ m: 1 }}>
-          <Button component={Link} to="/" color="primary" fullWidth >
+        <Button onClick={logoutUser} color="primary" fullWidth >
             <LockOpenTwoToneIcon  sx={{ mr: 1 }} />
             Cerrar Sesión
           </Button>

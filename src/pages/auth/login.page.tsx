@@ -59,7 +59,6 @@ const LoginPage = () => {
         usu_contra:password,
       });
       setToken(res.data.token);
-      setDecodedToken(jwtDecode(res.data.token));
       store.setRequestLoading(false);
       switch (res.data.usuario.rol_id) {
         case 1:
