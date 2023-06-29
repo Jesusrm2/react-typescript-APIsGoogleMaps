@@ -135,9 +135,9 @@ function HeaderUserbox() {
         </List>
         <Divider />
         <Box sx={{ m: 1 }}>
-          <Button component={Link} to="/login" color="primary" fullWidth >
+          <Button component={Link} to="/" color="primary" fullWidth >
             <LockOpenTwoToneIcon  sx={{ mr: 1 }} />
-            Sign out
+            Cerrar Sesión
           </Button>
         </Box>
       </Popover>

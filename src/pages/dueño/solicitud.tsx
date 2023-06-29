@@ -1,12 +1,17 @@
 import { useEffect, useContext } from "react";
 import useStore from "../../store";
 import AuthContext from "../../contexts/auth/authContext";
+import RequestSite from "./solicitar-lugar";
 
-const RequestSite = () => {
+const Solicitud = () => {
   const store = useStore();
   const user = store.authUser;
   const { decodedToken, setDecodedToken } = useContext(AuthContext);
-
+  const handleRequestComplete = (result:any) => {
+    // Aquí puedes utilizar el resultado de la petición
+    console.log(result);
+    // Realiza las acciones necesarias con el resultado
+  };
   useEffect(() => {
     // Verificar si hay un usuario almacenado en el almacenamiento local
     const storedUser = localStorage.getItem("user");
@@ -23,13 +28,14 @@ const RequestSite = () => {
 
   return (
     <div>
-      <h1>Aquí SOLICITARE REGISTRAAR UN LUGAR</h1>
+      <h1>Aquí generare la solicitud</h1>
       <p>ID: {user?.per_id}</p>
       <p>Nombre: {user?.per_nombres}</p>
       <p>Token: {JSON.stringify(decodedToken)}</p>
+      <RequestSite onRequestComplete={handleRequestComplete} />
       {/* Otros elementos de la página */}
     </div>
   );
 };
 
-export default RequestSite;
+export default Solicitud;

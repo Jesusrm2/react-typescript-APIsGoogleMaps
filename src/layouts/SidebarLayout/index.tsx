@@ -42,22 +42,11 @@ const SidebarLayout: FC<SidebarLayoutProps> = () => {
         }}
       >
         <Header />
-        <Box
-          sx={{
-            position: 'relative',
-            zIndex: 5,
-            display: 'block',
-            flex: 1,
-            pt: `${theme.spacing(8)}`,
-            [theme.breakpoints.up('lg')]: {
-              ml: `${theme.spacing(32)}` // Reemplaza `theme.sidebar.width` con un valor fijo
-            }
-          }}
-        >
+        
           <Box display="block">
             <Outlet />
           </Box>
-        </Box>
+        
       </Box>
     </>
   );
