@@ -181,33 +181,38 @@ const Solicitud = ({ responseValue }: SolicitudComponentProps) => {
                     Seleccione las categorias de su sitio:
                   </Typography>
                   <Autocomplete
-                    sx={{ m: 1, width: 500 }}
-                    multiple
-                    options={tiposAtractivosTuristicos}
-                    getOptionLabel={(option) => option.label}
-                    disableCloseOnSelect
-                    value={selectedCategories}
-                    onChange={(event, value) => setSelectedCategories(value as Category[])}
-                    renderInput={(params) => (
-                      <TextField
-                        {...params}
-                        variant="outlined"
-                        label="Categorías"
-                        placeholder="Categorías"
-                      />
-                    )}
-                    renderOption={(props, option, { selected }) => (
-                      <MenuItem
-                        {...props}
-                        key={option.type}
-                        value={option.type}
-                        sx={{ justifyContent: "space-between" }}
-                      >
-                        {option.label}
-                        {selected ? <CheckIcon color="info" /> : null}
-                      </MenuItem>
-                    )}
-                  />
+  sx={{ m: 1, width: 500 }}
+  multiple
+  options={tiposAtractivosTuristicos}
+  getOptionLabel={(option) => option.label}
+  disableCloseOnSelect
+  value={selectedCategories}
+  onChange={(event, value) => {
+    if (event) {
+      setSelectedCategories(value as Category[]);
+    }
+  }}
+  renderInput={(params) => (
+    <TextField
+      {...params}
+      variant="outlined"
+      label="Categorías"
+      placeholder="Categorías"
+    />
+  )}
+  renderOption={(props, option, { selected }) => (
+    <MenuItem
+      {...props}
+      key={option.type}
+      value={option.type}
+      sx={{ justifyContent: "space-between" }}
+    >
+      {option.label}
+      {selected ? <CheckIcon color="info" /> : null}
+    </MenuItem>
+  )}
+/>
+
                   <Button
                     type="submit"
                     variant="contained"

@@ -22,8 +22,7 @@ import CheckIcon from "@mui/icons-material/Check";
 
 const GenerateGuide = () => {
   const store = useStore();
-  const user = store.authUser;
-  const { decodedToken, setDecodedToken } = useContext(AuthContext);
+  const {setDecodedToken } = useContext(AuthContext);
   const [clickedLocation, setClickedLocation] = useState<number[]>([]);
   const [selectedCategories, setSelectedCategories] = useState<Category[]>([]);
   const handleLocationClick = (location: number[]) => {
@@ -143,33 +142,37 @@ const GenerateGuide = () => {
                     Seleccione sus preferencias:
                   </Typography>
                   <Autocomplete
-                    sx={{ m: 1, width: 500 }}
-                    multiple
-                    options={tiposAtractivosTuristicos}
-                    getOptionLabel={(option) => option.label}
-                    disableCloseOnSelect
-                    value={selectedCategories}
-                    onChange={(event, value) => setSelectedCategories(value as Category[])}
-                    renderInput={(params) => (
-                      <TextField
-                        {...params}
-                        variant="outlined"
-                        label="Categorías"
-                        placeholder="Categorías"
-                      />
-                    )}
-                    renderOption={(props, option, { selected }) => (
-                      <MenuItem
-                        {...props}
-                        key={option.type}
-                        value={option.type}
-                        sx={{ justifyContent: "space-between" }}
-                      >
-                        {option.label}
-                        {selected ? <CheckIcon color="info" /> : null}
-                      </MenuItem>
-                    )}
-                  />
+  sx={{ m: 1, width: 500 }}
+  multiple
+  options={tiposAtractivosTuristicos}
+  getOptionLabel={(option) => option.label}
+  disableCloseOnSelect
+  value={selectedCategories}
+  onChange={(event, value) => {
+    if (event) {
+      setSelectedCategories(value as Category[]);
+    }
+  }}
+  renderInput={(params) => (
+    <TextField
+      {...params}
+      variant="outlined"
+      label="Categorías"
+      placeholder="Categorías"
+    />
+  )}
+  renderOption={(props, option, { selected }) => (
+    <MenuItem
+      {...props}
+      key={option.type}
+      value={option.type}
+      sx={{ justifyContent: "space-between" }}
+    >
+      {option.label}
+      {selected ? <CheckIcon color="info" /> : null}
+    </MenuItem>
+  )}
+/>
                   <Button
                     type="submit"
                     variant="contained"
