@@ -53,7 +53,7 @@ import { ListWrapper } from '..';
               classes={{ root: 'MuiListItem-indicators' }}
               button
               component={NavLink}
-              to="/perfil/history"
+              to="/perfil/solicitudes"
             >
               <ListItemText
                 primaryTypographyProps={{ noWrap: true }}

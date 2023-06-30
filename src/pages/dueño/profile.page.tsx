@@ -1,15 +1,16 @@
-import { useContext, useEffect} from "react";
+import { useContext, useEffect } from "react";
 import { toast } from "react-toastify";
 import { authApi } from "../../api/authApi";
 import useStore from "../../store";
 import AuthContext from "../../contexts/auth/authContext";
 import jwtDecode from "jwt-decode";
 import { Ipersona } from "../../api/types";
-
+import { Box, Card, CardContent, Divider, Grid, Typography } from "@mui/material";
+import Text from '../../components/Text/';
 
 const ProfilePageDuenio = () => {
   const store = useStore();
-  const { token, setToken} = useContext(AuthContext);
+  const { token, setToken } = useContext(AuthContext);
   //const [decodedToken, setDecodedToken] = useState<any>(null);
   const { decodedToken, setDecodedToken } = useContext(AuthContext);
 
@@ -46,7 +47,7 @@ const ProfilePageDuenio = () => {
   useEffect(() => {
     // Guardar el token en el almacenamiento local cuando cambie
     localStorage.setItem("token", token || "");
-    
+
     // Decodificar el token JWT para obtener la información
     let decodedToken: any = null;
     if (token) {
@@ -68,21 +69,67 @@ const ProfilePageDuenio = () => {
   const user = store.authUser;
 
   return (
-    <section className="bg-ct-blue-600 min-h-screen pt-20">
-      <div className="max-w-4xl mx-auto bg-ct-dark-100 rounded-md h-[20rem] flex justify-center items-center">
-        <div>
-          <p className="text-5xl font-semibold">Profile Page DUENIO</p>
-          <div className="mt-8">
-            <p className="mb-4">ID: {user?.per_id}</p>
-            <p className="mb-4">Nombre: {user?.per_nombres}</p>
-            <p className="mb-4">Apellido: {user?.per_apellidos}</p>
-            <p className="mb-4">Estado: {user?.per_estado}</p>
-            <p>Token: {token}</p>
-            <p>Info token: {JSON.stringify(decodedToken)}</p>
-          </div>
-        </div>
-      </div>
-    </section>
+    <>
+      <div><h1>.</h1></div>
+      <Grid item xs={12}>
+        <Card>
+          <Box
+            p={3}
+            display="flex"
+            alignItems="center"
+            justifyContent="space-between"
+          >
+            <Box>
+              <Typography variant="h4" gutterBottom>
+                Detalles personales
+              </Typography>
+              <Typography variant="subtitle2">
+                Información relacionada con tus detalles personales del dueño(a) de local
+              </Typography>
+            </Box>
+          </Box>
+          <Divider />
+          <CardContent sx={{ p: 4 }}>
+            <Typography variant="subtitle2">
+              <Grid container spacing={0}>
+                <Grid item xs={12} sm={4} md={3} textAlign={{ sm: 'right' }}>
+                  <Box pr={3} pb={2}>
+                    Nombre:
+                  </Box>
+                </Grid>
+                <Grid item xs={12} sm={8} md={9}>
+                  <Text color="black">
+                    <b>{user?.per_nombres} </b>
+                  </Text>
+                </Grid>
+                <Grid item xs={12} sm={4} md={3} textAlign={{ sm: 'right' }}>
+                  <Box pr={3} pb={2}>
+                    Apellido:
+                  </Box>
+                </Grid>
+                <Grid item xs={12} sm={8} md={9}>
+                  <Text color="black">
+                    <b>{user?.per_apellidos}</b>
+                  </Text>
+                </Grid>
+                <Grid item xs={12} sm={4} md={3} textAlign={{ sm: 'right' }}>
+                  <Box pr={3} pb={2}>
+                    Correo:
+                  </Box>
+                </Grid>
+                <Grid item xs={12} sm={8} md={9}>
+                  <Box sx={{ maxWidth: { xs: 'auto', sm: 300 } }}>
+                    <Text color="black">
+                    {decodedToken && typeof decodedToken === 'object' && decodedToken.usu_email}
+                    </Text>
+                  </Box>
+                </Grid>
+              </Grid>
+            </Typography>
+          </CardContent>
+        </Card>
+      </Grid>
+    </>
   );
 };
 

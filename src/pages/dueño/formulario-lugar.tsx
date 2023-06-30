@@ -1,4 +1,4 @@
-import {  useState } from "react";
+import { useState } from "react";
 import {
   Box,
   Card,
@@ -13,45 +13,44 @@ import {
 
 } from '@mui/material';
 import { toast } from 'react-toastify';
-import { MapView } from "../../components/maps/MapView";
+import { MapView } from "../../components/maps/MapViewSoli";
 import { authApi } from "../../api/authApi";
 import { IPuntoInteres } from "../../interfaces/pi";
-import { useNavigate } from "react-router-dom";
 
-type RequestSiteProps = {
+type FormularioSitioProps = {
   onRequestComplete: (result: IPuntoInteres) => void;
 };
 
-const RequestSite = ({ onRequestComplete }: RequestSiteProps) =>{
+
+const FormularioSitio = ({ onRequestComplete }: FormularioSitioProps) => {
   const [clickedLocation, setClickedLocation] = useState<number[]>([]);
-  const navigate = useNavigate();
   const handleLocationClick = (location: number[]) => {
     setClickedLocation(location);
   };
 
-  const formularioLugar = async (data: any)=>{
-    if(clickedLocation.length == 0){
+  const formularioLugar = async (data: any) => {
+    if (clickedLocation.length == 0) {
       const resMessage = "Error = Ingrese la ubicacion";
       toast.error(resMessage, {
         position: "top-right",
       });
       return;
     }
-    if(!data.get("nombre")){
+    if (!data.get("nombre")) {
       const resMessage = "Error = Ingrese el nombre";
       toast.error(resMessage, {
         position: "top-right",
       });
       return;
     }
-    if(!data.get("direccion")){
+    if (!data.get("direccion")) {
       const resMessage = "Error = Ingrese la dirección";
       toast.error(resMessage, {
         position: "top-right",
       });
       return;
     }
-    if(!data.get("telefono")){
+    if (!data.get("telefono")) {
       const resMessage = "Error = Ingrese el telefono";
       toast.error(resMessage, {
         position: "top-right",
@@ -63,8 +62,8 @@ const RequestSite = ({ onRequestComplete }: RequestSiteProps) =>{
     const dir = data.get("direccion");
     try {
       const res = await authApi.post<IPuntoInteres>("/api/puntosInteres", {
-        pi_cel:tel,
-        pi_nombre: nom ,
+        pi_cel: tel,
+        pi_nombre: nom,
         pi_direccion: dir,
         pi_log: clickedLocation[0],
         pi_lat: clickedLocation[1],
@@ -72,15 +71,13 @@ const RequestSite = ({ onRequestComplete }: RequestSiteProps) =>{
       });
       console.log(res);
       onRequestComplete(res.data);
-      navigate("/perfil/solicitud");
-
     } catch (error: any) {
       const resMessage = error.response?.data?.msg || "Error - datos incorrectos";
       toast.error(resMessage, {
         position: "top-right",
       });
     }
-    
+
   }
 
   const handleSubmit = (event: any) => {
@@ -101,23 +98,23 @@ const RequestSite = ({ onRequestComplete }: RequestSiteProps) =>{
           alignItems="stretch"
           spacing={3}
         >
-            <Grid item xs={1} sm={6}>
+          <Grid item xs={100} sm={6}>
             <Card>
-              <CardHeader title="Ingrese la ubicación del sitio" />
+              <CardHeader title="Marque la ubicación de donde desea iniciar el tour" />
               <Divider />
-              <Box >
-              <MapView onLocationClick={handleLocationClick} />
-      {clickedLocation.length > 0 && (
-        <div>
-          <Typography gutterBottom variant="subtitle2">Ubicación = Latitude: {clickedLocation[1]}, Longitude: {clickedLocation[0]}</Typography>
-        </div>
-      )}
+              <Box  >
+                <MapView onLocationClick={handleLocationClick} />
+                {clickedLocation.length > 0 && (
+                  <div>
+                    <Typography gutterBottom variant="subtitle2">Ubicación = Latitude: {clickedLocation[1]}, Longitude: {clickedLocation[0]}</Typography>
+                  </div>
+                )}
               </Box>
             </Card>
           </Grid>
           <Grid item xs={12} sm={6}>
             <Card>
-              <CardHeader title="Ingrese la información del sitio que desea solicitar el registro" />
+              <CardHeader title="Ingrese la información de la guía" />
               <Divider />
               <CardContent>
                 <Box
@@ -130,45 +127,45 @@ const RequestSite = ({ onRequestComplete }: RequestSiteProps) =>{
                   autoComplete="off"
                 >
                   <TextField
-                      required
-                      fullWidth
-                      id="nombre"
-                      label="Nombre del sitio"
-                      variant="standard"
-                      name="nombre"
-                    />
-                    <TextField
-                      required
-                      fullWidth
-                      id="direccion"
-                      label="Direccion"
-                      variant="standard"
-                      name="direccion"
-                    />
-                    <TextField
-                      required
-                      fullWidth
-                      id="telefono"
-                      label="Teléfono"
-                      variant="standard"
-                      name="telefono"
-                    />            
-                     <Button
-        type="submit"
-        variant="contained"
-        sx={{ mt: 3, mb: 2 }}
-      >
-        Siguiente
-      </Button>
+                    required
+                    fullWidth
+                    id="nombre"
+                    label="Nombre del sitio"
+                    variant="standard"
+                    name="nombre"
+                  />
+                  <TextField
+                    required
+                    fullWidth
+                    id="direccion"
+                    label="Direccion"
+                    variant="standard"
+                    name="direccion"
+                  />
+                  <TextField
+                    required
+                    fullWidth
+                    id="telefono"
+                    label="Teléfono"
+                    variant="standard"
+                    name="telefono"
+                  />
+                  <Button
+                    type="submit"
+                    variant="contained"
+                    sx={{ mt: 3, mb: 2 }}
+                  >
+                    Siguiente
+                  </Button>
                 </Box>
               </CardContent>
             </Card>
           </Grid>
-        
+
         </Grid>
       </Container>
     </>
   );
 };
 
-export default RequestSite;
+export default FormularioSitio;

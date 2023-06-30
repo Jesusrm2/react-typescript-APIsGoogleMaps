@@ -6,13 +6,10 @@ import HistoryGuide from "../pages/turista/historial";
 import ProfilePageAdmin from "../pages/admin/profile.page";
 import SidebarLayout from "../layouts/SidebarLayout";
 import ProfilePageDuenio from "../pages/dueño/profile.page";
-import RequestSite from "../pages/dueño/solicitar-lugar";
-import Solicitud from "../pages/dueño/solicitud";
-const handleRequestComplete = (result:any) => {
-  // Aquí puedes utilizar el resultado de la petición
-  console.log(result);
-  // Realiza las acciones necesarias con el resultado
-};
+import PrincipalComponent from "../pages/dueño/solicitud-principal";
+import EstadoSolicitud from "../pages/dueño/solicitud-estado";
+import Solicitudes from "../pages/dueño/estado";
+
 const routes: RouteObject[] = [
   {
     path: "/",
@@ -37,14 +34,16 @@ const routes: RouteObject[] = [
       },
       {
         path: "request",
-        element:  <RequestSite onRequestComplete={handleRequestComplete} />,
+        element:  <PrincipalComponent />,
       },
       {
-        path: "solicitud",
-        element: <Solicitud />,
+        path: "estado",
+        element:  <EstadoSolicitud />,
       },
-
       {
+        path: "solicitudes",
+        element:  <Solicitudes />,
+      },{
         path: "generate",
         element: <GenerateGuide />,
       },

@@ -60,6 +60,17 @@ function HeaderMenuTurista() {
             />
           </ListItem>
           <ListItem
+              classes={{ root: 'MuiListItem-indicators' }}
+              button
+              component={NavLink}
+              to="/perfil/profile-turista"
+            >
+              <ListItemText
+                primaryTypographyProps={{ noWrap: true }}
+                primary="Perfil"
+              />
+            </ListItem>
+          <ListItem
             classes={{ root: 'MuiListItem-indicators' }}
             button
             ref={ref}

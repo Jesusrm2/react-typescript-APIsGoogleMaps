@@ -2,33 +2,94 @@ import { useEffect, useContext, useState } from "react";
 import useStore from "../../store";
 import AuthContext from "../../contexts/auth/authContext";
 import {
-  Box,
-  Card,
-  Grid,
-  TextField,
-  CardHeader,
-  Divider,
-  CardContent,
-  Typography,
-  Button,
-  Container,
   Autocomplete,
+  Box,
+  Button,
+  Card,
+  CardContent,
+  CardHeader,
+  Container,
+  Divider,
+  Grid,
   MenuItem,
-
-} from '@mui/material';
-import { MapView } from "../../components/maps/MapView";
-import { Category, tiposAtractivosTuristicos } from "../../interfaces/tipos-lugares";
+  TextField,
+  Typography
+} from "@mui/material";
+import { IPuntoInteres } from "../../interfaces/pi";
+import AddTwoToneIcon from "@mui/icons-material/AddTwoTone";
 import CheckIcon from "@mui/icons-material/Check";
+import { toast } from 'react-toastify';
+import { ISolicitud } from "../../interfaces/solicitud";
+import { authApi } from "../../api/authApi";
+import { useNavigate } from "react-router-dom";
+import { ICategoria } from "../../interfaces/categoria";
+import { Category, tiposAtractivosTuristicos } from "../../interfaces/tipos-lugares";
 
-const GenerateGuide = () => {
+
+type SolicitudComponentProps = {
+  responseValue: IPuntoInteres | null;
+};
+
+const Solicitud = ({ responseValue }: SolicitudComponentProps) => {
   const store = useStore();
   const user = store.authUser;
   const { decodedToken, setDecodedToken } = useContext(AuthContext);
-  const [clickedLocation, setClickedLocation] = useState<number[]>([]);
   const [selectedCategories, setSelectedCategories] = useState<Category[]>([]);
-  const handleLocationClick = (location: number[]) => {
-    setClickedLocation(location);
+  const navigate = useNavigate();
+  const solicitud = async (data: any) => {
+    console.log(responseValue);
+    console.log(data.get("coment"));
+    console.log(user?.per_id);
+    console.log(decodedToken);
+    console.log(selectedCategories);
+    if (selectedCategories.length === 0) {
+      const resMessage = "Error = Seleccione las categorias del sitio";
+      toast.error(resMessage, {
+        position: "top-right",
+      });
+      return;
+    }
+    if (!data.get("coment")) {
+      const resMessage = "Error = Ingrese el motivo de su solicitud";
+      toast.error(resMessage, {
+        position: "top-right",
+      });
+      return;
+    }
+    try {
+      const currentDate = new Date(); 
+      const year = currentDate.getFullYear(); 
+      const month = String(currentDate.getMonth() + 1).padStart(2, "0"); 
+      const day = String(currentDate.getDate()).padStart(2, "0"); 
+
+      const formattedDate = `${year}-${month}-${day}`;
+      const res = await authApi.post<ISolicitud>("/api/piSolicitudes", {
+        pi_id: responseValue?.pi_id,
+        per_id: user?.per_id,
+        pi_soli_fecha: formattedDate,
+        pi_soli_descripcion: data.get("coment"),
+        pi_soli_estado: 'I'
+      });
+
+      for (let i = 0; i < selectedCategories.length; i++) {
+        const tipoAtractivo = selectedCategories[i];
+        const res2 = await authApi.post<ICategoria>("/api/categoria", {
+          pi_id: responseValue?.pi_id,
+          cat_nombre:  tipoAtractivo.type,
+          cat_estado: 'A'
+        });
+        console.log(res2);
+      }
+      console.log(res);
+      navigate("/perfil/estado")
+    } catch (error: any) {
+      const resMessage = error.response?.data?.msg || "Error - datos incorrectos";
+      toast.error(resMessage, {
+        position: "top-right",
+      });
+    }
   };
+
   useEffect(() => {
     // Verificar si hay un usuario almacenado en el almacenamiento local
     const storedUser = localStorage.getItem("user");
@@ -43,21 +104,19 @@ const GenerateGuide = () => {
     }
   }, []);
 
-  const formularioLugar = async (data: any) => {
-      console.log(data.get("dias"))
-  }
-
   const handleSubmit = (event: any) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
-    formularioLugar(data);
+    solicitud(data);
   };
+
 
 
   return (
     <>
-      <div><h1>.</h1></div>
-
+      <div>
+        <h1>.</h1>
+      </div>
       <Container maxWidth="lg">
         <Grid
           container
@@ -66,33 +125,39 @@ const GenerateGuide = () => {
           alignItems="stretch"
           spacing={3}
         >
-          <Grid item xs={100} sm={6}>
+          <Grid item xs={100} sm={5}>
             <Card>
-              <CardHeader title="Ingrese la ubicación del sitio" />
-
+              <CardHeader title="Imagenes del sitio" />
               <Divider />
-              <Box  >
-              
-                <MapView onLocationClick={handleLocationClick} />
-                {clickedLocation.length > 0 && (
-                  <div>
-                    <Typography gutterBottom variant="subtitle2">Ubicación = Latitude: {clickedLocation[1]}, Longitude: {clickedLocation[0]}</Typography>
-                  </div>
-                )}
-                
+              <Box p={2}>
+                <Box pl={2}>
+                  <Typography variant="h4" gutterBottom>
+                    Local: {responseValue?.pi_nombre}
+                  </Typography>
+                  <Typography color="text.primary" sx={{ pb: 2 }}>
+                    Propietario: {user?.per_nombres}
+                  </Typography>
+                  <Button
+                    variant="outlined"
+                    size="small"
+                    startIcon={<AddTwoToneIcon />}
+                  >
+                    Añadir foto
+                  </Button>
+                </Box>
               </Box>
             </Card>
           </Grid>
           <Grid item xs={12} sm={6}>
             <Card>
-              <CardHeader title="Ingrese la información del sitio que desea solicitar el registro" />
+              <CardHeader title="Finalizar solicitud" />
               <Divider />
               <CardContent>
                 <Box
                   component="form"
                   onSubmit={handleSubmit}
                   sx={{
-                    '& .MuiTextField-root': { m: 1, width: '72ch' }
+                    "& .MuiTextField-root": { m: 1, width: "72ch" }
                   }}
                   noValidate
                   autoComplete="off"
@@ -100,47 +165,20 @@ const GenerateGuide = () => {
                   <TextField
                     required
                     fullWidth
-                    type="number"
-                    id="dias"
-                    label="Número de días:"
+                    id="coment"
+                    label="Motivo de solicitud"
                     variant="standard"
-                    name="dias"
+                    name="coment"
                   />
 
-                 <TextField
-  required
-  fullWidth
-  id="fecha"
-  label="Fecha"
-  variant="standard"
-  name="fecha"
-  type="date"
-/><TextField
-  required
-  fullWidth
-  id="hora-i"
-  label="Hora de inicio:"
-  variant="standard"
-  name="hora-i"
-  type="time"
-/>
-<TextField
-  required
-  fullWidth
-  id="hora-f"
-  label="Hora de fin:"
-  variant="standard"
-  name="hora-f"
-  type="time"
-/>
-<Typography
+                  <Typography
                     sx={{
                       pb: 0.5,
                       pt: 2
                     }}
                     variant="h4"
                   >
-                    Seleccione sus preferencias:
+                    Seleccione las categorias de su sitio:
                   </Typography>
                   <Autocomplete
                     sx={{ m: 1, width: 500 }}
@@ -181,11 +219,10 @@ const GenerateGuide = () => {
               </CardContent>
             </Card>
           </Grid>
-
         </Grid>
       </Container>
     </>
   );
 };
 
-export default GenerateGuide;
+export default Solicitud;
