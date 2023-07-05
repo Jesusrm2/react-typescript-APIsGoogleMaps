@@ -172,7 +172,7 @@ const LoginPage = () => {
                 </Button>
                 <Grid container>
                   <Grid item xs>
-                    <Link href="#" variant="body2">
+                    <Link href="/restablecer" variant="body2">
                         ¿Has olvidado tu contraseña?
                     </Link>
                   </Grid>

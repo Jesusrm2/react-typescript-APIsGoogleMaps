@@ -2,7 +2,15 @@ export type Category = {
     type: string;
     label: string;
   };
+export interface IDetalleItinerario {
+    dias: number ;
+    fecha: string ;
+    horaI: string ;
+    horaF: string ;
+    selectedCategories: Category[];
+    ubicacion: [number, number] | null;
   
+  }
 export const tiposAtractivosTuristicos: Category[] = [
     { type: "amusement_park", label: "parque de atracciones" },
     { type: "aquarium", label: "acuario" },

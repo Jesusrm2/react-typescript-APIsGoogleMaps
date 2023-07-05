@@ -58,7 +58,7 @@ export const MapView = ({ onLocationClick }: { onLocationClick: (location: numbe
       ref={mapDiv}
       style={{
         height: "70vh",
-        width: "100vw",
+        width: "100%",
       }}
     >
       {userLocation?.join(",")}

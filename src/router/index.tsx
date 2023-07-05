@@ -1,19 +1,24 @@
 import type { RouteObject } from "react-router-dom";
 import LoginPage from "../pages/auth/login.page";
 import ProfilePage from "../pages/turista/profile.page";
-import GenerateGuide from "../pages/turista/generar";
-import HistoryGuide from "../pages/turista/historial";
 import ProfilePageAdmin from "../pages/admin/profile.page";
 import SidebarLayout from "../layouts/SidebarLayout";
 import ProfilePageDuenio from "../pages/dueño/profile.page";
 import PrincipalComponent from "../pages/dueño/solicitud-principal";
 import EstadoSolicitud from "../pages/dueño/solicitud-estado";
 import Solicitudes from "../pages/dueño/estado";
+import GenerarItinerario from "../pages/turista/generar";
+import Historial from "../pages/turista/historial";
+import Restablecer from "../pages/auth/restablecer";
 
 const routes: RouteObject[] = [
   {
     path: "/",
     element: <LoginPage />,
+  },
+  {
+    path: "/restablecer",
+    element: <Restablecer />,
   },
   {
     path: "/perfil",
@@ -45,11 +50,11 @@ const routes: RouteObject[] = [
         element:  <Solicitudes />,
       },{
         path: "generate",
-        element: <GenerateGuide />,
+        element: <GenerarItinerario />,
       },
       {
         path: "history",
-        element: <HistoryGuide />,
+        element: <Historial />,
       },
       // ...otras rutas
     ],

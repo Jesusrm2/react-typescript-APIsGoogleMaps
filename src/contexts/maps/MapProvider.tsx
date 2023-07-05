@@ -6,20 +6,27 @@ import { useReducer, useContext, useEffect } from "react";
 import { MapContext } from "./MapConetxt";
 import { mapReducer } from "./mapReducer";
 import directionsApi from "../../api/directions";
-import { DirenctionsResponse } from "../../interfaces/directions";
+import { DirectionsResponse} from "../../interfaces/directions";
 import { PlacesContext } from "../places/PlacesContext";
+import poiApi from "../../api/poiApi";
+import { IPoI, Result } from "../../interfaces/poi";
+import placeApi from "../../api/placeApi";
+import { Details } from "../../interfaces/details";
+import { Category } from "../../interfaces/tipos-lugares";
 
 
 export interface MapState{
     isMapReady: boolean;
     map?:Map,
     markers: Marker[];
+    poi:Result[];
 }
 
 const INITIAL_STATE: MapState = {
     isMapReady: false,
     map: undefined,
     markers:[],
+    poi:[]
 }
 
 interface Props{
@@ -60,8 +67,8 @@ export const MapProvider = ({children}:Props) => {
         const myLocationPopup = new Popup()
             .setHTML(
                 `
-                <h4>Aqui estoy</h4>
-                <p>En algún lugar del mundo</p>
+                <h2>Mi ubicacion</h2>
+                <p>Aquí comienza su ruta turistica</p>
                 `
             )
 
@@ -75,9 +82,41 @@ export const MapProvider = ({children}:Props) => {
 
         dispatch({type: 'setMap', payload: map})
     }
+    const setPois = async (PointOfInterest: Category[], lat: number, long: number): Promise<any[]> => {
+        let pois: Result[] = [];
+        console.log(PointOfInterest[0].type)
+    
+        for (let i = 0; i < PointOfInterest.length; i++)  {
+            const pointOfInterest = PointOfInterest[i].type;
+            const resp = await poiApi.get<IPoI>(`/json`, {
+              params: {
+                location: lat + ',' + long,
+                types: pointOfInterest
+              }
+            });
+      
+            pois = [...pois, ...resp.data.results];
+          }
+      
+          const placeIds = pois.map((poi) => poi.place_id);
+      
+          const responses = await Promise.all(
+            placeIds.map((placeId) => placeApi.get<Details>(`/json?place_id=${placeId}`))
+          );
+      
+          const detailsArr = responses
+            .map((response) => response.data.result)
+            .filter((details) => details?.business_status !== 'CLOSED_TEMPORARILY');
+      
+          dispatch({ type: 'setPois', payload: detailsArr });
+          console.log(pois)
+        
+        return pois;
+      };
+    
 
     const getRouteBetweenPoints =async (start:[number, number], end: [number, number]) => {
-        const resp = await directionsApi.get<DirenctionsResponse>(`/${start.join(',')};${end.join(',')}`)
+        const resp = await directionsApi.get<DirectionsResponse>(`/${start.join(',')};${end.join(',')}`)
         const {distance, duration, geometry}= resp.data.routes[0];
         const {coordinates:coords} = geometry;
 
@@ -148,6 +187,7 @@ export const MapProvider = ({children}:Props) => {
             ...state,
             getRouteBetweenPoints,
             setMap,
+            setPois
         }}>
             {children}
         </MapContext.Provider>

@@ -4,7 +4,7 @@ import { Map, Marker } from "mapbox-gl";
 type MapAction = 
 |{ type: 'setMap', payload: Map}
 |{ type:' setMarkers', payload: Marker[]}
-
+|{type:'setPois', payload: any[]}
 export const mapReducer =(state: MapState, action: MapAction):MapState =>{
     switch (action.type) {
         case 'setMap':
@@ -18,6 +18,12 @@ export const mapReducer =(state: MapState, action: MapAction):MapState =>{
                 ...state,
                 markers: action.payload
             }
+            case 'setPois':
+                return{
+                        ...state,
+                        poi:action.payload
+                }
+    
         default:
            return state;
     }

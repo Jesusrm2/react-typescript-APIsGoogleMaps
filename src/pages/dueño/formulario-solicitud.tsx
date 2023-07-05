@@ -57,10 +57,10 @@ const Solicitud = ({ responseValue }: SolicitudComponentProps) => {
       return;
     }
     try {
-      const currentDate = new Date(); 
-      const year = currentDate.getFullYear(); 
-      const month = String(currentDate.getMonth() + 1).padStart(2, "0"); 
-      const day = String(currentDate.getDate()).padStart(2, "0"); 
+      const currentDate = new Date();
+      const year = currentDate.getFullYear();
+      const month = String(currentDate.getMonth() + 1).padStart(2, "0");
+      const day = String(currentDate.getDate()).padStart(2, "0");
 
       const formattedDate = `${year}-${month}-${day}`;
       const res = await authApi.post<ISolicitud>("/api/piSolicitudes", {
@@ -75,7 +75,7 @@ const Solicitud = ({ responseValue }: SolicitudComponentProps) => {
         const tipoAtractivo = selectedCategories[i];
         const res2 = await authApi.post<ICategoria>("/api/categoria", {
           pi_id: responseValue?.pi_id,
-          cat_nombre:  tipoAtractivo.type,
+          cat_nombre: tipoAtractivo.type,
           cat_estado: 'A'
         });
         console.log(res2);
@@ -181,37 +181,37 @@ const Solicitud = ({ responseValue }: SolicitudComponentProps) => {
                     Seleccione las categorias de su sitio:
                   </Typography>
                   <Autocomplete
-  sx={{ m: 1, width: 500 }}
-  multiple
-  options={tiposAtractivosTuristicos}
-  getOptionLabel={(option) => option.label}
-  disableCloseOnSelect
-  value={selectedCategories}
-  onChange={(event, value) => {
-    if (event) {
-      setSelectedCategories(value as Category[]);
-    }
-  }}
-  renderInput={(params) => (
-    <TextField
-      {...params}
-      variant="outlined"
-      label="Categorías"
-      placeholder="Categorías"
-    />
-  )}
-  renderOption={(props, option, { selected }) => (
-    <MenuItem
-      {...props}
-      key={option.type}
-      value={option.type}
-      sx={{ justifyContent: "space-between" }}
-    >
-      {option.label}
-      {selected ? <CheckIcon color="info" /> : null}
-    </MenuItem>
-  )}
-/>
+                    sx={{ m: 1, width: 500 }}
+                    multiple
+                    options={tiposAtractivosTuristicos}
+                    getOptionLabel={(option) => option.label}
+                    disableCloseOnSelect
+                    value={selectedCategories}
+                    onChange={(event, value) => {
+                      if (event) {
+                        setSelectedCategories(value as Category[]);
+                      }
+                    }}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        variant="outlined"
+                        label="Categorías"
+                        placeholder="Categorías"
+                      />
+                    )}
+                    renderOption={(props, option, { selected }) => (
+                      <MenuItem
+                        {...props}
+                        key={option.type}
+                        value={option.type}
+                        sx={{ justifyContent: "space-between" }}
+                      >
+                        {option.label}
+                        {selected ? <CheckIcon color="info" /> : null}
+                      </MenuItem>
+                    )}
+                  />
 
                   <Button
                     type="submit"
