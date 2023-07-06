@@ -144,6 +144,8 @@ if (fecha < fechaActual) {
     const data = new FormData(event.currentTarget);
     formularioLugar(data);
   };
+
+
   return (
     <>
       <div><h1>.</h1></div>
@@ -205,7 +207,11 @@ if (fecha < fechaActual) {
                     variant="standard"
                     name="fecha"
                     type="date"
-                  /><TextField
+                    defaultValue={new Date().toISOString().slice(0, 10)}
+                  />
+
+
+                  <TextField
                     required
                     fullWidth
                     id="hora-i"
@@ -213,6 +219,7 @@ if (fecha < fechaActual) {
                     variant="standard"
                     name="hora-i"
                     type="time"
+                    defaultValue="12:00"
                   />
                   <TextField
                     required
@@ -222,18 +229,10 @@ if (fecha < fechaActual) {
                     variant="standard"
                     name="hora-f"
                     type="time"
+                    defaultValue="17:00"
                   />
-                  <Typography
-                    sx={{
-                      pb: 0.5,
-                      pt: 2
-                    }}
-                    variant="h4"
-                  >
-                    Seleccione sus preferencias:
-                  </Typography>
+
                   <Autocomplete
-                    sx={{ m: 1, width: 500 }}
                     multiple
                     options={tiposAtractivosTuristicos}
                     getOptionLabel={(option) => option.label}
@@ -247,9 +246,9 @@ if (fecha < fechaActual) {
                     renderInput={(params) => (
                       <TextField
                         {...params}
-                        variant="outlined"
-                        label="Categorías"
-                        placeholder="Categorías"
+                        variant="standard"
+                        label="Tipos de lugares que desea visitar"
+                        placeholder="Tipos de lugares que desea visitar"
                       />
                     )}
                     renderOption={(props, option, { selected }) => (

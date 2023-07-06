@@ -12,12 +12,13 @@ import {
   Button,
   FormHelperText
 } from '@mui/material';
-
+import { toast } from 'react-toastify';
 import { styled } from '@mui/material/styles';
 import FacebookIcon from '@mui/icons-material/Facebook';
 import TwitterIcon from '@mui/icons-material/Twitter';
 import InstagramIcon from '@mui/icons-material/Instagram';
 import MailTwoToneIcon from '@mui/icons-material/MailTwoTone';
+import { authApi } from '../../api/authApi';
 
 const MainContent = styled(Box)(
   () => `
@@ -43,9 +44,36 @@ const ButtonNotify = styled(Button)(
     margin-right: -${theme.spacing(1)};
 `
 );
+interface IRestablecer {
+  msg: string;
+}
+
 
 const enviarEmail = async (data: any) => {
     console.log(data.get("email"));
+     if (!data.get("email")) {
+      const resMessage = "Error - Falta el correo electronico";
+      toast.error(resMessage, {
+        position: "top-right",
+      });
+      return;
+    }
+    try {
+      const res = await authApi.post<IRestablecer>("/api/auth/reset", {
+          usu_email: data.get("email"),
+      });
+
+      const resMessage = res.data.msg || "Error - datos incorrectos";
+      toast.success(resMessage, {
+        position: "top-right",
+      });
+
+    } catch (error:any) {
+       const resMessage = error.response?.data?.msg || "Error - datos incorrectos";
+      toast.error(resMessage, {
+        position: "top-right",
+      });
+    }
 }
 
 const handleSubmit = (event: any) => {
@@ -109,7 +137,7 @@ function StatusComingSoon() {
                   }
                 />
                 <FormHelperText>
-                        Le enviaremos un correo electrónico en cuanto pongamos en marcha nuestro sitio web. 
+                        Se enviará un correo electrónico cuando pulse el boton enviar. 
                 </FormHelperText>
               </FormControl>
               <Divider sx={{ my: 4 }} />

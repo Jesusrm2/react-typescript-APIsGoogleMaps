@@ -1,6 +1,6 @@
-import { useContext, useRef, useState } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
 
-import { NavLink, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 import {
   Avatar,
@@ -9,20 +9,17 @@ import {
   Divider,
   Hidden,
   lighten,
-  List,
-  ListItem,
-  ListItemText,
+
   Popover,
   Typography
 } from '@mui/material';
 
-import InboxTwoToneIcon from '@mui/icons-material/InboxTwoTone';
+
 import { styled } from '@mui/material/styles';
 import ExpandMoreTwoToneIcon from '@mui/icons-material/ExpandMoreTwoTone';
-import AccountBoxTwoToneIcon from '@mui/icons-material/AccountBoxTwoTone';
 import LockOpenTwoToneIcon from '@mui/icons-material/LockOpenTwoTone';
-import AccountTreeTwoToneIcon from '@mui/icons-material/AccountTreeTwoTone';
 import AuthContext from '../../../../contexts/auth/authContext';
+import useStore from '../../../../store';
 
 const UserBoxButton = styled(Button)(
   ({ theme }) => `
@@ -60,15 +57,15 @@ const UserBoxDescription = styled(Typography)(
 );
 
 function HeaderUserbox() {
-  const user = {
-    name: 'Catherine Pike',
-    avatar: 'src/assets/1.jpg',
-    jobtitle: 'Project Manager'
-  };
+
+  const store = useStore();
+  const user = store.authUser;
+  const { decodedToken, setDecodedToken } = useContext(AuthContext);
+
   const navigate = useNavigate();
   const ref = useRef<any>(null);
   const [isOpen, setOpen] = useState<boolean>(false);
-  const { setDecodedToken , setToken} = useContext(AuthContext);
+
   const handleOpen = (): void => {
     setOpen(true);
   };
@@ -79,22 +76,57 @@ function HeaderUserbox() {
   const logoutUser = () => {
     // Borrar el token del almacenamiento local
     localStorage.removeItem("token");
-    // Restablecer los valores en el contexto
-    setToken(null);
+    // Restablecer los valores en el context
     setDecodedToken(null);
     // Redirigir a la página de inicio de sesión u otra página según sea necesario
     navigate("/");
   };
 
+
+
+
+
+  useEffect(() => {
+    // Verificar si hay un usuario almacenado en el almacenamiento local
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      store.setAuthUser(JSON.parse(storedUser));
+    }
+    // Verificar si hay un token decodificado almacenado en el almacenamiento local
+    const storedDecodedToken = localStorage.getItem("decodedToken");
+    if (storedDecodedToken) {
+      const decodedToken = JSON.parse(storedDecodedToken);
+      setDecodedToken(decodedToken); // Establecer el valor de decodedToken en el contexto
+    }
+  }, []);
+
+  const rol = decodedToken?.rol_id;
+  let rolString = '';
+
+  switch (rol) {
+    case 1:
+      rolString='Administrador' ;
+      break;
+    case 2:
+      rolString='Dueño Local' ;
+      break;
+    case 3:
+      rolString='Turista' ;
+      break;
+    default:
+      rolString  = ""; // Opcionalmente, puedes mostrar un componente por defecto para otros roles
+      break;
+  }
+
   return (
     <>
       <UserBoxButton color="secondary" ref={ref} onClick={handleOpen}>
-        <Avatar variant="rounded" alt={user.name} src={user.avatar} />
+      <Avatar variant="rounded" alt="" src="../../../assets/perfil.jpg"/>
         <Hidden mdDown>
           <UserBoxText>
-            <UserBoxLabel variant="body1">{user.name}</UserBoxLabel>
+              <UserBoxLabel variant="body1">{user?.per_nombres} {user?.per_apellidos}</UserBoxLabel>
             <UserBoxDescription variant="body2">
-              {user.jobtitle}
+            {rolString}
             </UserBoxDescription>
           </UserBoxText>
         </Hidden>
@@ -116,33 +148,18 @@ function HeaderUserbox() {
         }}
       >
         <MenuUserBox sx={{ minWidth: 210 }} display="flex">
-          <Avatar variant="rounded" alt={user.name} src={user.avatar} />
+
+          
+        <Avatar variant="rounded" alt="" src="../../../assets/perfil.jpg"/>
           <UserBoxText>
-            <UserBoxLabel variant="body1">{user.name}</UserBoxLabel>
+            <UserBoxLabel variant="body1">{user?.per_nombres}</UserBoxLabel>
             <UserBoxDescription variant="body2">
-              {user.jobtitle}
+            {rolString}
             </UserBoxDescription>
           </UserBoxText>
         </MenuUserBox>
         <Divider sx={{ mb: 0 }} />
-        <List sx={{ p: 1 }} component="nav">
-          <ListItem button to="/management/profile/details" component={NavLink}>
-            <AccountBoxTwoToneIcon fontSize="small" />
-            <ListItemText primary="My Profile" />
-          </ListItem>
-          <ListItem button to="/dashboards/messenger" component={NavLink}>
-            <InboxTwoToneIcon fontSize="small" />
-            <ListItemText primary="Messenger" />
-          </ListItem>
-          <ListItem
-            button
-            to="/management/profile/settings"
-            component={NavLink}
-          >
-            <AccountTreeTwoToneIcon fontSize="small" />
-            <ListItemText primary="Account Settings" />
-          </ListItem>
-        </List>
+    
         <Divider />
         <Box sx={{ m: 1 }}>
         <Button onClick={logoutUser} color="primary" fullWidth >

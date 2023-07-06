@@ -63,6 +63,8 @@ const Solicitud = ({ responseValue }: SolicitudComponentProps) => {
       const day = String(currentDate.getDate()).padStart(2, "0");
 
       const formattedDate = `${year}-${month}-${day}`;
+
+      
       const res = await authApi.post<ISolicitud>("/api/piSolicitudes", {
         pi_id: responseValue?.pi_id,
         per_id: user?.per_id,

@@ -169,7 +169,7 @@ function Header() {
 
       </Stack>
       <Box display="flex" alignItems="center">
-        <HeaderButtons />
+        
         <HeaderUserbox />
         <Box
           component="span"

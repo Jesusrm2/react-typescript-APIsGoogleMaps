@@ -10,6 +10,7 @@ import Solicitudes from "../pages/dueño/estado";
 import GenerarItinerario from "../pages/turista/generar";
 import Historial from "../pages/turista/historial";
 import Restablecer from "../pages/auth/restablecer";
+import FormRegistrar from "../pages/auth/registrar";
 
 const routes: RouteObject[] = [
   {
@@ -19,6 +20,10 @@ const routes: RouteObject[] = [
   {
     path: "/restablecer",
     element: <Restablecer />,
+  },
+  {
+    path: "/registrar",
+    element: <FormRegistrar />,
   },
   {
     path: "/perfil",

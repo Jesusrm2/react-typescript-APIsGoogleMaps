@@ -1,4 +1,5 @@
 import { useEffect, useContext, useState, useLayoutEffect, useRef } from "react";
+import { addMinutes, format, parseISO } from 'date-fns';
 import useStore from "../../store";
 import AuthContext from "../../contexts/auth/authContext";
 import {
@@ -10,7 +11,12 @@ import {
   Container,
   Divider,
   Grid,
+  IconButton,
+  List,
+  ListItem,
+  ListItemText,
   MenuItem,
+  Modal,
   Paper,
   Table,
   TableBody,
@@ -19,9 +25,11 @@ import {
   TableHead,
   TableRow,
   TextField,
-  Typography
+  Tooltip,
+  Typography,
+  useTheme
 } from "@mui/material";
-import { Category, IDetalleItinerario } from "../../interfaces/tipos-lugares";
+import { IDetalleItinerario, tiposAtractivosTuristicos } from "../../interfaces/tipos-lugares";
 import { AnySourceData, LngLat, LngLatBounds, LngLatLike, Map, Marker, Popup } from "mapbox-gl";
 import { MapContext } from "../../contexts/maps/MapConetxt";
 import directionsApi from "../../api/directions";
@@ -29,7 +37,10 @@ import { DirectionsResponse } from "../../interfaces/directions";
 import LoadingScreen from "../../components/LoadingScreem";
 import React from "react";
 import StarIcon from '@mui/icons-material/Star';
+import ChangeCircleIcon from '@mui/icons-material/ChangeCircle';
+import NotListedLocationIcon from '@mui/icons-material/NotListedLocation';
 import ModalCalificacion from "../../components/itinerario/modalCalificacion";
+import { Result } from "../../interfaces/poi";
 
 type DetalleItinerarioComponentProps = {
   responseValue: IDetalleItinerario | null;
@@ -39,7 +50,7 @@ const Itinerario = ({ responseValue }: DetalleItinerarioComponentProps) => {
   const store = useStore();
   const user = store.authUser;
   const { decodedToken, setDecodedToken } = useContext(AuthContext);
-  const [pois, setPuntosInteres] = useState<Category[]>([]);
+  const [pois, setPuntosInteres] = useState<Result[]>([]);
   const [randomPois, setRandomPois] = useState<any[]>([]);
   const mapDiv = useRef<HTMLDivElement>(null);
   const { map, setMap } = useContext(MapContext);
@@ -66,8 +77,8 @@ const Itinerario = ({ responseValue }: DetalleItinerarioComponentProps) => {
   }
 
   const solicitud = async (data: any) => {
-    console.log(randomPois);
-    console.log(user,data, decodedToken)
+    console.log(randomPois,user, data, decodedToken);
+
   };
 
   const fetchData = async () => {
@@ -154,40 +165,56 @@ const Itinerario = ({ responseValue }: DetalleItinerarioComponentProps) => {
     const startMinutes = hoursS * 60 + minutesS;
     const [hoursE, minutesE] = (responseValue?.horaF ?? "").split(":").map((num) => parseInt(num)) || [0, 0];
     const endMinutes = hoursE * 60 + minutesE;
-
+  
     const selectedPoisWithTime: any[] = [];
     let remainingTime = endMinutes - startMinutes;
-
     const poisForDay = [...pois]; // Copiar la lista de puntos de interés disponibles
-
+    let currentMinutes = startMinutes; // Hora actual que se irá aumentando
+  
     while (remainingTime >= 60 && poisForDay.length > 0) {
       const poiIndex = Math.floor(Math.random() * poisForDay.length);
-      const poiObj = poisForDay[poiIndex];
+      const poiObj:Result = poisForDay[poiIndex];
+  
+      const type = poiObj.types[0]; // Obtener el primer tipo de lugar
 
-      const poiTime = 60; // Asignar un tiempo fijo de 60 minutos
-
+      const category = tiposAtractivosTuristicos.find((cat) => cat.type === type); // Buscar la categoría en base al tipo
+      const poiTime = category?.duration || 60; // Utilizar la duración de la categoría o un tiempo fijo de 60 minutos si no se encuentra la categoría
+  
       selectedPoisWithTime.push({
         poiObj,
-        time: poiTime
+        time: poiTime,
+        startTime: currentMinutes // Guardar la hora de inicio
       });
-
+  
       remainingTime -= poiTime;
       poisForDay.splice(poiIndex, 1);
+      currentMinutes += poiTime; // Aumentar la hora actual
     }
-
+  
     if (remainingTime > 0 && poisForDay.length > 0) {
-      const timePerPoi = Math.ceil(remainingTime / poisForDay.length); // Distribuir el tiempo restante de manera equitativa entre los puntos de interés restantes
-
       poisForDay.forEach((poiObj) => {
+        if (remainingTime <= 0) {
+          return;
+        }
+  
+        const type = poiObj.types[0]; // Obtener el primer tipo de lugar
+        const category = tiposAtractivosTuristicos.find((cat) => cat.type === type); // Buscar la categoría en base al tipo
+        const poiTime = category?.duration || 60; // Utilizar la duración de la categoría o un tiempo fijo de 60 minutos si no se encuentra la categoría
+  
         selectedPoisWithTime.push({
           poiObj,
-          time: timePerPoi
+          time: poiTime,
+          startTime: currentMinutes // Guardar la hora de inicio
         });
+  
+        remainingTime -= poiTime;
+        currentMinutes += poiTime; // Aumentar la hora actual
       });
     }
-
+  
     return selectedPoisWithTime;
   };
+  
 
   const generateRandomPois = async () => {
     const days = responseValue?.dias || 0;
@@ -197,6 +224,7 @@ const Itinerario = ({ responseValue }: DetalleItinerarioComponentProps) => {
 
     for (let i = 1; i <= days; i++) {
       const poiforday = await generateRandomPoisForDay();
+
       const date = new Date(dateStart);
       date.setDate(date.getDate() + i - 1);
       const index = i - 1;
@@ -214,9 +242,10 @@ const Itinerario = ({ responseValue }: DetalleItinerarioComponentProps) => {
 
 
 
-  /* GENERAR ITINERARIO */
+  /* TODO: GENERAR RUTAS */
   let layerCounter = layerCounterState;
   const GenerateItineraryDay = (numberDay: number) => {
+
     const day = Number(numberDay - 1);
     if (randomPois && randomPois.length > 0) {
       createdMarkers.forEach(marker => {
@@ -237,7 +266,7 @@ const Itinerario = ({ responseValue }: DetalleItinerarioComponentProps) => {
     }
   };
 
-
+  /* TODO: GENERAR  ITINERARIO*/
   const GenerateItinerary = (randomPois: any[], day: number, newMarkers: Marker[], start: [number, number]) => {
     const [Startlat, Startlng] = start;
     if (!map) {
@@ -273,7 +302,7 @@ const Itinerario = ({ responseValue }: DetalleItinerarioComponentProps) => {
     let kms = distance / 100;
     kms = Math.round(kms * 100);
     kms /= 100;
-//    const minutes = Math.floor(duration / 60);
+    //    const minutes = Math.floor(duration / 60);
 
     const bounds = new LngLatBounds(
       start,
@@ -341,7 +370,6 @@ const Itinerario = ({ responseValue }: DetalleItinerarioComponentProps) => {
 
     const stars = [];
     if (!rating) {
-
       stars.push(
         <StarIcon style={{ fontSize: '16px' }} />,
         <StarIcon style={{ fontSize: '16px' }} />,
@@ -349,21 +377,37 @@ const Itinerario = ({ responseValue }: DetalleItinerarioComponentProps) => {
         <StarIcon style={{ fontSize: '16px' }} />,
         <StarIcon style={{ fontSize: '16px' }} />
       );
-
     }
-
-
     for (let i = 0; i < fullStars; i++) {
       stars.push(<StarIcon key={`star-${i}`} style={{ color: 'gold', fontSize: '16px' }} />);
     }
-
     for (let i = fullStars; i < 5; i++) {
       stars.push(<StarIcon key={`star-empty-${i}`} style={{ fontSize: '16px' }} />);
     }
-
     return stars;
   }
 
+  const theme = useTheme();
+
+  const [selectedPoiIndex, setSelectedPoiIndex] = useState<number>(-1);
+  const [modalOpen, setModalOpen] = useState<boolean>(false);
+
+  const handlePoiChange = (index: number) => {
+    setSelectedPoiIndex(index);
+    setModalOpen(true);
+  };
+
+  const handleModalClose = (day: number) => {
+    if (selectedPoiIndex !== -1) {
+      const newRandomPois = [...randomPois];
+      const selectedPoi = pois[selectedPoiIndex];
+      const selectedPoiObj = newRandomPois[day].poi[selectedPoiIndex];
+      selectedPoiObj.poiObj = selectedPoi;
+      setRandomPois(newRandomPois);
+    }
+    setSelectedPoiIndex(-1);
+    setModalOpen(false);
+  };
 
 
   return (
@@ -383,7 +427,7 @@ const Itinerario = ({ responseValue }: DetalleItinerarioComponentProps) => {
               alignItems="stretch"
               spacing={1}
             >
-              <Grid item xs={12} sm={7}>
+              <Grid item xs={12} sm={5}>
                 <Card>
                   <Box
                     component="form"
@@ -436,15 +480,15 @@ const Itinerario = ({ responseValue }: DetalleItinerarioComponentProps) => {
                   </CardContent>
                 </Card>
               </Grid>
-              <Grid item xs={12} sm={5}>
+              <Grid item xs={12} sm={15}>
                 <Card>
-                <CardHeader
-                  title={
-                    <Typography variant="h4" align="center">
-                      Itinerario
-                    </Typography>
-                  }
-                />
+                  <CardHeader
+                    title={
+                      <Typography variant="h4" align="center">
+                        Itinerario
+                      </Typography>
+                    }
+                  />
                   <Divider />
                   <CardContent>
                     <Box
@@ -462,35 +506,98 @@ const Itinerario = ({ responseValue }: DetalleItinerarioComponentProps) => {
                             <TableRow>
 
                               <TableCell>Fecha</TableCell>
+                              <TableCell>Hora</TableCell>
                               <TableCell>Lugar</TableCell>
                               <TableCell>Puntucación</TableCell>
-                              <TableCell>Calificar</TableCell>
+                              <TableCell>Acciones</TableCell>
                             </TableRow>
                           </TableHead>
                           <TableBody>
                             {randomPois?.map((item?: any) => (
                               <React.Fragment key={item.numberday}>
-                                <TableRow>
-                                
-                                  <TableCell rowSpan={item.poi.length}>{item.dateStart}</TableCell>
+                                <TableRow hover>
+
+                                  <TableCell rowSpan={item.poi.length + 1}>
+                                    <Typography
+                                      variant="body1"
+                                      fontWeight="bold"
+                                      color="text.primary"
+                                      gutterBottom
+                                      noWrap
+                                    >
+                                      Dia {item.numberday}
+                                    </Typography>
+                                    <Typography variant="body2" color="text.secondary" noWrap>
+                                      {format(parseISO(item.dateStart), 'MMMM dd yyyy')}
+                                    </Typography>
+                                  </TableCell>
 
                                 </TableRow>
-                                {item.poi.slice(1).map((poi: any, index: number) => (
+                                {item.poi.slice(0).map((poi: any, index: number) => (
                                   <TableRow key={index}>
-                                    <TableCell>{poi.poiObj?.name}</TableCell>
+                                    <TableCell>
+                                      <Typography
+                                        variant="body1"
+                                        fontWeight="bold"
+                                        color="text.primary"
+                                        gutterBottom
+                                        noWrap
+                                      >
+                                   {format(addMinutes(parseISO(item.dateStart), poi.startTime), 'hh:mm a')}
+                                      </Typography>
+                                    </TableCell>
+                                    <TableCell>
+                                      <Typography
+                                        variant="body1"
+                                        fontWeight="bold"
+                                        color="text.primary"
+                                        gutterBottom
+                                        noWrap
+                                      >
+                                        {poi.poiObj?.name}
+                                      </Typography>
+                                      <Typography variant="body2" color="text.secondary" noWrap>
+                                        {poi.poiObj?.vicinity}
+                                      </Typography>
+                                    </TableCell>
                                     <TableCell>
                                       {renderStars(poi.poiObj?.rating)}
                                     </TableCell>
-                                    <TableCell>
-                                      <ModalCalificacion poi={poi} />
+                                    <TableCell align="left">
+                                          <ModalCalificacion poi={poi} />
+                                      <Tooltip title="Cambie el lugar" arrow>
+                                        <IconButton
+                                          sx={{
+                                            '&:hover': { background: theme.colors.error.lighter },
+                                            color: theme.palette.warning.main
+                                          }}
+                                          onClick={() => handlePoiChange(index)}
+                                          color="inherit"
+                                          size="small"
+                                        >
+                                          <ChangeCircleIcon fontSize="small" />
+                                        </IconButton>
+                                      </Tooltip>
+                                      <Tooltip title="Dirección" arrow>
+                                        <IconButton
+                                          sx={{
+                                            '&:hover': { background: theme.colors.error.lighter },
+                                            color: theme.palette.error.main
+                                          }}
+                                          onClick={() => handlePoiChange(index)}
+                                          color="inherit"
+                                          size="small"
+                                        >
+                                          <NotListedLocationIcon fontSize="small" />
+                                        </IconButton>
+                                      </Tooltip>
                                     </TableCell>
+                                    
                                   </TableRow>
                                 ))}
                               </React.Fragment>
                             ))}
                           </TableBody>
-                          
-
                         </Table>
                       </TableContainer>
                       <Button type="submit" variant="contained" sx={{ mt: 3, mb: 2 }}>
@@ -501,7 +608,42 @@ const Itinerario = ({ responseValue }: DetalleItinerarioComponentProps) => {
                 </Card>
               </Grid>
             </Grid>
-          </Container> 
+          </Container>
+          <Modal open={modalOpen} onClose={handleModalClose}>
+        <Box
+          sx={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            bgcolor: "background.paper",
+            boxShadow: 24,
+            p: 4,
+            maxWidth: 500,
+            maxHeight: 500,
+            overflow: "auto",
+          }}
+        >
+          <Typography variant="h6" component="h2" gutterBottom>
+            Seleccione un POI
+          </Typography>
+          <List>
+            {pois.map((poi: Result, index: number) => (
+              <ListItem
+                key={poi.place_id}
+                button
+                selected={index === selectedPoiIndex}
+                onClick={() => setSelectedPoiIndex(index)}
+              >
+                <ListItemText primary={poi.name} secondary={poi.types[0]} />
+              </ListItem>
+            ))}
+          </List>
+          <Button variant="contained" onClick={() => handleModalClose(selectedPoiIndex)}>
+          Cerrar
+        </Button>
+        </Box>
+      </Modal>
         </>
       )}
 

@@ -43,10 +43,6 @@ const LoginPage = () => {
   }, [isSubmitSuccessful]);
 
   const loginUser = async (data:any) => {
-    console.log(
-      data.get("email")
-           ,data.get("password")
-          );
     try {
       
       const email = data.get("email");
@@ -177,7 +173,7 @@ const LoginPage = () => {
                     </Link>
                   </Grid>
                   <Grid item>
-                    <Link href="#" variant="body2">
+                    <Link href="/registrar" variant="body2">
                       {"¿Necesita una cuenta? Registrate aquí"}
                     </Link>
                   </Grid>

@@ -1,6 +1,6 @@
-import  { useState } from 'react';
-import { Modal, Box, Button, Typography, Grid, TextField, Divider } from '@mui/material';
-
+import { useState } from 'react';
+import { Modal, Box, Button, Typography, Grid, TextField, Divider, Tooltip, IconButton, useTheme } from '@mui/material';
+import CommentIcon from '@mui/icons-material/Comment';
 interface ModalCalificacionProps {
   poi: any;
 }
@@ -27,13 +27,13 @@ const ModalCalificacion = ({ poi }: ModalCalificacionProps) => {
       label: '2'
     },
     {
-        value: 1,
-        label: '1'
-      },
-      {
-          value: 0,
-          label: '0'
-        }
+      value: 1,
+      label: '1'
+    },
+    {
+      value: 0,
+      label: '0'
+    }
   ];
   const handleRate = () => {
     console.log('Calificando lugar:', poi.poiObj?.name);
@@ -52,14 +52,28 @@ const ModalCalificacion = ({ poi }: ModalCalificacionProps) => {
       handleClose();
     }
   };
+  const theme = useTheme();
 
   const hasPhoto = poi.poiObj?.photos && poi.poiObj?.photos.length > 0;
   const photoUrl = hasPhoto ? `https://maps.googleapis.com/maps/api/place/photo?maxheight=200&photoreference=${poi.poiObj?.photos[0].photo_reference}&key=AIzaSyC4i2ej2NQxOwvw9hpGkTZVpADP8FYAuKk` : '';
   return (
     <>
-      <Button variant="outlined" color="primary" onClick={handleRate}>
-        +
-      </Button>
+      <Tooltip title="Calificar lugar" arrow>
+        <IconButton
+        onClick={handleRate}
+          sx={{
+            '&:hover': {
+              background: theme.colors.primary.lighter
+            },
+            color: theme.palette.primary.main
+          }}
+          color="inherit"
+          size="small"
+        >
+          <CommentIcon fontSize="small" />
+        </IconButton>
+      </Tooltip>
+
 
       <Modal
         open={open}
@@ -70,49 +84,49 @@ const ModalCalificacion = ({ poi }: ModalCalificacionProps) => {
           justifyContent: 'center'
         }}
       >
-        <Box component="form" sx={{ width: '80%', maxWidth: 500, bgcolor: 'white', p: 2 , '& .MuiTextField-root': { m: 1, width: '25ch' }}}>
+        <Box component="form" sx={{ width: '80%', maxWidth: 500, bgcolor: 'white', p: 2, '& .MuiTextField-root': { m: 1, width: '25ch' } }}>
           <div style={{ display: section === 'lugar' ? 'block' : 'none' }}>
-          <Grid container spacing={2}>
-  {hasPhoto && (
-    <Grid item xs={12} md={6}>
-      <Box display="flex" alignItems="center" justifyContent="center" height={200}>
-        <img src={photoUrl} alt="Lugar" style={{ maxWidth: '100%', maxHeight: '100%' }} />
-      </Box>
-    </Grid>
-  )}
-  <Grid item xs={12} md={hasPhoto ? 6 : 12}>
-    <Typography variant="h4" align="center">
-      Información del lugar
-    </Typography>
-    <Divider />
-    <TextField
-      disabled
-      id="standard-disabled"
-      label="Nombre:"
-      defaultValue={poi?.poiObj?.name}
-      variant="standard"
-    />
-    <TextField
-      disabled
-      id="standard-disabled"
-      label="Dirección:"
-      defaultValue={poi?.poiObj?.vicinity}
-      variant="standard"
-    />
-    <TextField
-      disabled
-      id="standard-disabled"
-      label="Categorias: "
-      defaultValue={poi?.poiObj?.types}
-      variant="standard"
-    />
-  </Grid>
-</Grid>
+            <Grid container spacing={2}>
+              {hasPhoto && (
+                <Grid item xs={12} md={6}>
+                  <Box display="flex" alignItems="center" justifyContent="center" height={200}>
+                    <img src={photoUrl} alt="Lugar" style={{ maxWidth: '100%', maxHeight: '100%' }} />
+                  </Box>
+                </Grid>
+              )}
+              <Grid item xs={12} md={hasPhoto ? 6 : 12}>
+                <Typography variant="h4" align="center">
+                  Información del lugar
+                </Typography>
+                <Divider />
+                <TextField
+                  disabled
+                  id="standard-disabled"
+                  label="Nombre:"
+                  defaultValue={poi?.poiObj?.name}
+                  variant="standard"
+                />
+                <TextField
+                  disabled
+                  id="standard-disabled"
+                  label="Dirección:"
+                  defaultValue={poi?.poiObj?.vicinity}
+                  variant="standard"
+                />
+                <TextField
+                  disabled
+                  id="standard-disabled"
+                  label="Categorias: "
+                  defaultValue={poi?.poiObj?.types}
+                  variant="standard"
+                />
+              </Grid>
+            </Grid>
 
           </div>
 
           <div style={{ display: section === 'calificar' ? 'block' : 'none' }}>
-          <Grid item xs={12} sm={11}>
+            <Grid item xs={12} sm={11}>
               <Typography variant="h4" align="center">
                 Calificar el lugar
               </Typography>
@@ -155,7 +169,7 @@ const ModalCalificacion = ({ poi }: ModalCalificacionProps) => {
                 />
               </Box>
             </Grid>
-        
+
           </div>
 
           <div style={{ display: section === 'salir' ? 'block' : 'none' }}>
