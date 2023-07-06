@@ -61,7 +61,7 @@ const Itinerario = ({ responseValue }: DetalleItinerarioComponentProps) => {
 
 
   //Verificar si
-  const [poisLoaded, setPoisLoaded] = useState(false);
+
 
   let center: LngLatLike | undefined;
   let lat: number;
@@ -85,7 +85,7 @@ const Itinerario = ({ responseValue }: DetalleItinerarioComponentProps) => {
     const categories = responseValue?.selectedCategories ?? [];
     const result = await setPois(categories, lat, lng);
     setPuntosInteres(result);
-    setPoisLoaded(true);
+
     generateRandomPois();
   };
 
@@ -421,7 +421,7 @@ const Itinerario = ({ responseValue }: DetalleItinerarioComponentProps) => {
 
   return (
     <>
-      {loading || !poisLoaded ? ( // Si loading es verdadero, mostramos la pantalla de carga
+      {loading ? ( // Si loading es verdadero, mostramos la pantalla de carga
         <LoadingScreen />
       ) : ( // Si loading es falso, mostramos el contenido normal del componente
         <>
