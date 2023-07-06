@@ -84,8 +84,6 @@ export const MapProvider = ({children}:Props) => {
     }
     const setPois = async (PointOfInterest: Category[], lat: number, long: number): Promise<any[]> => {
         let pois: Result[] = [];
-        console.log(PointOfInterest[0].type)
-    
         for (let i = 0; i < PointOfInterest.length; i++)  {
             const pointOfInterest = PointOfInterest[i].type;
             const resp = await poiApi.get<IPoI>(`/json`, {
@@ -109,7 +107,6 @@ export const MapProvider = ({children}:Props) => {
             .filter((details) => details?.business_status !== 'CLOSED_TEMPORARILY');
       
           dispatch({ type: 'setPois', payload: detailsArr });
-          console.log(pois)
         
         return pois;
       };

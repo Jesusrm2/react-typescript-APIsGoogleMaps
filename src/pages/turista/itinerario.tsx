@@ -119,16 +119,17 @@ const Itinerario = ({ responseValue }: DetalleItinerarioComponentProps) => {
   };
 
   useLayoutEffect(() => {
-
     const newMarkers: Marker[] = [];
+  
     try {
-      if (responseValue) {
+      if (responseValue && mapDiv.current) { // Verificar si mapDiv.current existe
         const map = new Map({
-          container: mapDiv.current!, // container ID
-          style: "mapbox://styles/mapbox/outdoors-v12", // style URL
-          center: center, // starting position [lng, lat]
-          zoom: 14 // starting zoom
+          container: mapDiv.current,
+          style: "mapbox://styles/mapbox/outdoors-v12",
+          center: center,
+          zoom: 14
         });
+  
         if (map) {
           map.flyTo({
             zoom: 12.5,
@@ -151,14 +152,20 @@ const Itinerario = ({ responseValue }: DetalleItinerarioComponentProps) => {
           }
 
           setMap(map);
-        } else throw new Error("El mapa no está listo o exite un error");
+  
+        } else {
+          throw new Error("El mapa no está listo o existe un error");
+        }
       }
-    } catch (error) {
-      console.error("Ha ocurrido un error", error);
-    }
-    if (map)
-      setLoading(false);
-  }, [poi]);
+      } catch (error) {
+        console.error("Ha ocurrido un error", error);
+      }
+    
+      if (map) {
+        setLoading(false);
+      }
+    }, [poi]);
+
 
   const generateRandomPoisForDay = async (): Promise<any[]> => {
     const [hoursS, minutesS] = (responseValue?.horaI ?? "").split(":").map((num) => parseInt(num)) || [0, 0];
@@ -367,25 +374,27 @@ const Itinerario = ({ responseValue }: DetalleItinerarioComponentProps) => {
   const dias = responseValue?.dias;
   function renderStars(rating: number) {
     const fullStars = Math.floor(rating);
-
     const stars = [];
+  
     if (!rating) {
       stars.push(
-        <StarIcon style={{ fontSize: '16px' }} />,
-        <StarIcon style={{ fontSize: '16px' }} />,
-        <StarIcon style={{ fontSize: '16px' }} />,
-        <StarIcon style={{ fontSize: '16px' }} />,
-        <StarIcon style={{ fontSize: '16px' }} />
+        <StarIcon key="empty-star-1" style={{ fontSize: '16px' }} />,
+        <StarIcon key="empty-star-2" style={{ fontSize: '16px' }} />,
+        <StarIcon key="empty-star-3" style={{ fontSize: '16px' }} />,
+        <StarIcon key="empty-star-4" style={{ fontSize: '16px' }} />,
+        <StarIcon key="empty-star-5" style={{ fontSize: '16px' }} />
       );
     }
+    
     for (let i = 0; i < fullStars; i++) {
       stars.push(<StarIcon key={`star-${i}`} style={{ color: 'gold', fontSize: '16px' }} />);
     }
     for (let i = fullStars; i < 5; i++) {
-      stars.push(<StarIcon key={`star-empty-${i}`} style={{ fontSize: '16px' }} />);
+      stars.push(<StarIcon key={`empty-star-${i}`} style={{ fontSize: '16px' }} />);
     }
     return stars;
   }
+  
 
   const theme = useTheme();
 
@@ -534,7 +543,7 @@ const Itinerario = ({ responseValue }: DetalleItinerarioComponentProps) => {
 
                                 </TableRow>
                                 {item.poi.slice(0).map((poi: any, index: number) => (
-                                  <TableRow key={index}>
+                                  <TableRow key={`${item.numberday}-${index}`}>
                                     <TableCell>
                                       <Typography
                                         variant="body1"

@@ -25,8 +25,6 @@ export const MapView = ({ onLocationClick }: { onLocationClick: (location: numbe
         });
         map.on("click", (e) => {
             const clickedLocation = [e.lngLat.lng, e.lngLat.lat];
-            console.log("Clicked Location:", clickedLocation);
-    
             const popup = new mapboxgl.Popup().setHTML(`
                 <h4>Ubicación Marcada</h4>
                 <p>Latitud: ${clickedLocation[1]}</p>
