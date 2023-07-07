@@ -68,7 +68,7 @@ export const MapProvider = ({children}:Props) => {
             .setHTML(
                 `
                 <h2>Mi ubicacion</h2>
-                <p>Aquí comienza su ruta turistica</p>
+                <p>Mi ubicacion actual</p>
                 `
             )
 

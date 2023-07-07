@@ -41,6 +41,7 @@ import ChangeCircleIcon from '@mui/icons-material/ChangeCircle';
 import NotListedLocationIcon from '@mui/icons-material/NotListedLocation';
 import ModalCalificacion from "../../components/itinerario/modalCalificacion";
 import { Result } from "../../interfaces/poi";
+import { PlacesContext } from "../../contexts/places/PlacesContext";
 
 type DetalleItinerarioComponentProps = {
   responseValue: IDetalleItinerario | null;
@@ -58,7 +59,7 @@ const Itinerario = ({ responseValue }: DetalleItinerarioComponentProps) => {
   const [createdMarkers, setCreatedMarkers] = useState<Marker[]>([]);
   const [layerCounterState, setLayerCounterState] = useState(0);
 
-
+  const { isLoading } = useContext(PlacesContext);
 
   //Verificar si
 
@@ -79,20 +80,10 @@ const Itinerario = ({ responseValue }: DetalleItinerarioComponentProps) => {
   const solicitud = async (data: any) => {
     const categories = responseValue?.selectedCategories ?? [];
     const result = await setPois(categories, lat, lng);
-    console.log("res", result);
-    console.log("categorias", categories);
-  
-    if (typeof result === 'object' && result !== null && Symbol.iterator in result) {
-      // Verificar si `result` es un objeto iterable (como un array)
-      for (const item of result) {
-        // Iterar sobre los elementos de `result`
-        console.log(item);
-      }
-    } else {
-      console.error("ne.data.results no es iterable");
-    }
-  
-    console.log(randomPois, user, data, decodedToken);
+    console.log("res",result);
+    console.log("categorias",categories);
+    console.log(randomPois,user, data, decodedToken);
+
   };
 
   const fetchData = async () => {
@@ -136,9 +127,9 @@ const Itinerario = ({ responseValue }: DetalleItinerarioComponentProps) => {
     const newMarkers: Marker[] = [];
   
     try {
-      if (responseValue && mapDiv.current) { // Verificar si mapDiv.current existe
+      if (!isLoading) { // Verificar si mapDiv.current existe
         const map = new Map({
-          container: mapDiv.current,
+          container: mapDiv.current!,
           style: "mapbox://styles/mapbox/outdoors-v12",
           center: center,
           zoom: 14
