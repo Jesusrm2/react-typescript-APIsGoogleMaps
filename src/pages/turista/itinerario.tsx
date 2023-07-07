@@ -79,10 +79,20 @@ const Itinerario = ({ responseValue }: DetalleItinerarioComponentProps) => {
   const solicitud = async (data: any) => {
     const categories = responseValue?.selectedCategories ?? [];
     const result = await setPois(categories, lat, lng);
-    console.log("res",result);
-    console.log("categorias",categories);
-    console.log(randomPois,user, data, decodedToken);
-
+    console.log("res", result);
+    console.log("categorias", categories);
+  
+    if (typeof result === 'object' && result !== null && Symbol.iterator in result) {
+      // Verificar si `result` es un objeto iterable (como un array)
+      for (const item of result) {
+        // Iterar sobre los elementos de `result`
+        console.log(item);
+      }
+    } else {
+      console.error("ne.data.results no es iterable");
+    }
+  
+    console.log(randomPois, user, data, decodedToken);
   };
 
   const fetchData = async () => {
