@@ -42,6 +42,7 @@ import NotListedLocationIcon from '@mui/icons-material/NotListedLocation';
 import ModalCalificacion from "../../components/itinerario/modalCalificacion";
 import { Result } from "../../interfaces/poi";
 import { PlacesContext } from "../../contexts/places/PlacesContext";
+import { Loading } from "../../components/maps/Loading";
 
 type DetalleItinerarioComponentProps = {
   responseValue: IDetalleItinerario | null;
@@ -126,7 +127,7 @@ const Itinerario = ({ responseValue }: DetalleItinerarioComponentProps) => {
   useLayoutEffect(() => {
     const newMarkers: Marker[] = [];
   
-    try {
+
       if (!isLoading) { // Verificar si mapDiv.current existe
         const map = new Map({
           container: mapDiv.current!,
@@ -162,15 +163,14 @@ const Itinerario = ({ responseValue }: DetalleItinerarioComponentProps) => {
           throw new Error("El mapa no está listo o existe un error");
         }
       }
-      } catch (error) {
-        console.error("Ha ocurrido un error", error);
-      }
-    
+
       if (map) {
         setLoading(false);
       }
-    }, [poi]);
-
+    }, [poi, isLoading]);
+    if (isLoading) {
+      return <Loading />;
+    }
 
   const generateRandomPoisForDay = async (): Promise<any[]> => {
     const [hoursS, minutesS] = (responseValue?.horaI ?? "").split(":").map((num) => parseInt(num)) || [0, 0];
