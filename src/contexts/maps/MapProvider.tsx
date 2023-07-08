@@ -109,7 +109,7 @@ export const MapProvider = ({children}:Props) => {
               types: pointOfInterest
             }
           });
-      
+          console.log("data",resp.data);
           if (Array.isArray(resp.data.results)) {
             console.log("hola desde set pois", resp.data.results);
             pois = [...pois, ...resp.data.results];
