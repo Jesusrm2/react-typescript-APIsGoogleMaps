@@ -3,6 +3,52 @@ export type Category = {
     label: string;
     duration: number;
   };
+
+export interface IPiDia {
+  poiObj: PoiObj;
+  time: number;
+  startTime: number;
+}
+
+interface PoiObj {
+  business_status: string;
+  geometry: Geometry;
+  icon: string;
+  icon_background_color: string;
+  icon_mask_base_uri: string;
+  name: string;
+  photos: Photo[];
+  place_id: string;
+  rating: number;
+  reference: string;
+  scope: string;
+  types: string[];
+  user_ratings_total: number;
+  vicinity: string;
+}
+
+interface Photo {
+  height: number;
+  html_attributions: string[];
+  photo_reference: string;
+  width: number;
+}
+
+interface Geometry {
+  location: Location;
+  viewport: Viewport;
+}
+
+interface Viewport {
+  northeast: Location;
+  southwest: Location;
+}
+
+interface Location {
+  lat: number;
+  lng: number;
+}
+
 export interface IDetalleItinerario {
     dias: number ;
     fecha: string ;

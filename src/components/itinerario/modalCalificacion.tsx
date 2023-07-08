@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { Modal, Box, Button, Typography, Grid, TextField, Divider, Tooltip, IconButton, useTheme } from '@mui/material';
 import CommentIcon from '@mui/icons-material/Comment';
+import { IPiDia } from '../../interfaces/tipos-lugares';
 interface ModalCalificacionProps {
-  poi: any;
+  poi:IPiDia;
 }
 
 const ModalCalificacion = ({ poi }: ModalCalificacionProps) => {

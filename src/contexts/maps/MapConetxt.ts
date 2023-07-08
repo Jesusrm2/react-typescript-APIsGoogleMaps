@@ -6,13 +6,19 @@ import { Category } from "../../interfaces/tipos-lugares";
 
 interface MapContextProps{
     isMapReady: boolean;
+    isMapDirReady: boolean;
+    isMapItiReady: boolean;
     map?:Map,
+    mapDir?:Map,
+    mapIti?:Map,
     poi:Result[];
     //metodos
     
     getRouteBetweenPoints: (start:[number, number], end: [number, number]) => Promise<void>;
     setPois: (PointOfInterest:Category[], lat: number, long:number)=> Promise<any[]>;
     setMap: (map: Map) => void;
+    setMapDir: (mapDir:Map)=>void;
+    setMapIti: (mapIti:Map)=>void;
 }
 
 

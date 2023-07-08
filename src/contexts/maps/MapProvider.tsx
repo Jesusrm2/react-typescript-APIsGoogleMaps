@@ -17,14 +17,22 @@ import { Category } from "../../interfaces/tipos-lugares";
 
 export interface MapState{
     isMapReady: boolean;
+    isMapDirReady: boolean;
+    isMapItiReady: boolean;
     map?:Map,
+    mapDir?:Map,
+    mapIti?:Map,
     markers: Marker[];
     poi:Result[];
 }
 
 const INITIAL_STATE: MapState = {
     isMapReady: false,
+    isMapDirReady: false,
+    isMapItiReady: false,
     map: undefined,
+    mapDir:undefined,
+    mapIti:undefined,
     markers:[],
     poi:[]
 }
@@ -63,7 +71,6 @@ export const MapProvider = ({children}:Props) => {
     
 
     const setMap =(map: Map) =>{
-
         const myLocationPopup = new Popup()
             .setHTML(
                 `
@@ -71,7 +78,6 @@ export const MapProvider = ({children}:Props) => {
                 <p>Mi ubicacion actual</p>
                 `
             )
-
         //Maracador
         new Marker({
             color:'#E74C3C'
@@ -82,6 +88,17 @@ export const MapProvider = ({children}:Props) => {
 
         dispatch({type: 'setMap', payload: map})
     }
+
+    const setMapDir =(mapDir: Map) =>{
+        dispatch({type: 'setMapDir', payload: mapDir})
+    }
+
+
+    const setMapIti =(mapIti: Map) =>{
+        dispatch({type: 'setMapIti', payload: mapIti})
+    }
+
+
     const setPois = async (PointOfInterest: Category[], lat: number, long: number): Promise<any[]> => {
         let pois: Result[] = [];
         for (let i = 0; i < PointOfInterest.length; i++)  {
@@ -116,12 +133,9 @@ export const MapProvider = ({children}:Props) => {
         const resp = await directionsApi.get<DirectionsResponse>(`/${start.join(',')};${end.join(',')}`)
         const {distance, duration, geometry}= resp.data.routes[0];
         const {coordinates:coords} = geometry;
-
-
         let kms = distance / 100;
             kms = Math.round(kms * 100);
             kms /= 100;
-
         const minutes = Math.floor(duration/60);
         console.log({kms, minutes});
 
@@ -184,7 +198,9 @@ export const MapProvider = ({children}:Props) => {
             ...state,
             getRouteBetweenPoints,
             setMap,
-            setPois
+            setPois,
+            setMapDir,
+            setMapIti
         }}>
             {children}
         </MapContext.Provider>

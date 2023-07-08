@@ -1,6 +1,7 @@
-import { useEffect, useContext, useState, useLayoutEffect, useRef } from "react";
+import { useEffect, useContext, useState, useLayoutEffect} from "react";
 import { addMinutes, format, parseISO } from 'date-fns';
 import useStore from "../../store";
+import CheckIcon from "@mui/icons-material/Check";
 import AuthContext from "../../contexts/auth/authContext";
 import {
   Box,
@@ -14,7 +15,6 @@ import {
   IconButton,
   List,
   ListItem,
-  ListItemText,
   MenuItem,
   Modal,
   Paper,
@@ -30,7 +30,7 @@ import {
   useTheme
 } from "@mui/material";
 import { IDetalleItinerario, tiposAtractivosTuristicos } from "../../interfaces/tipos-lugares";
-import { AnySourceData, LngLat, LngLatBounds, LngLatLike, Map, Marker, Popup } from "mapbox-gl";
+import { AnySourceData, LngLat, LngLatBounds, LngLatLike, Marker, Popup } from "mapbox-gl";
 import { MapContext } from "../../contexts/maps/MapConetxt";
 import directionsApi from "../../api/directions";
 import { DirectionsResponse } from "../../interfaces/directions";
@@ -38,11 +38,13 @@ import LoadingScreen from "../../components/LoadingScreem";
 import React from "react";
 import StarIcon from '@mui/icons-material/Star';
 import ChangeCircleIcon from '@mui/icons-material/ChangeCircle';
-import NotListedLocationIcon from '@mui/icons-material/NotListedLocation';
+
 import ModalCalificacion from "../../components/itinerario/modalCalificacion";
+import CancelIcon from '@mui/icons-material/Cancel';
+import SaveIcon from '@mui/icons-material/Save';
 import { Result } from "../../interfaces/poi";
-import { PlacesContext } from "../../contexts/places/PlacesContext";
-import { Loading } from "../../components/maps/Loading";
+import ModalDireccion from "../../components/itinerario/modalDireccion";
+import { MapViewIti } from "../../components/maps/MapViewItinerario";
 
 type DetalleItinerarioComponentProps = {
   responseValue: IDetalleItinerario | null;
@@ -54,22 +56,21 @@ const Itinerario = ({ responseValue }: DetalleItinerarioComponentProps) => {
   const { decodedToken, setDecodedToken } = useContext(AuthContext);
   const [pois, setPuntosInteres] = useState<Result[]>([]);
   const [randomPois, setRandomPois] = useState<any[]>([]);
-  const mapDiv = useRef<HTMLDivElement>(null);
-  const { map, setMap } = useContext(MapContext);
+  const { mapIti} = useContext(MapContext);
   const { setPois, poi } = useContext(MapContext);
   const [createdMarkers, setCreatedMarkers] = useState<Marker[]>([]);
   const [layerCounterState, setLayerCounterState] = useState(0);
 
-  const { isLoading } = useContext(PlacesContext);
+
 
   //Verificar si
-
+  const [poisLoaded, setPoisLoaded] = useState(false);
 
   let center: LngLatLike | undefined;
   let lat: number;
   let lng: number;
   // Estado para controlar la carga
-  const [loading, setLoading] = useState(true);
+
 
   if (responseValue?.ubicacion) {
     const [lngValue, latValue] = responseValue.ubicacion;
@@ -81,9 +82,9 @@ const Itinerario = ({ responseValue }: DetalleItinerarioComponentProps) => {
   const solicitud = async (data: any) => {
     const categories = responseValue?.selectedCategories ?? [];
     const result = await setPois(categories, lat, lng);
-    console.log("res",result);
-    console.log("categorias",categories);
-    console.log(randomPois,user, data, decodedToken);
+    console.log("res", result);
+    console.log("categorias", result);
+    console.log(randomPois, user, data, decodedToken);
 
   };
 
@@ -91,7 +92,7 @@ const Itinerario = ({ responseValue }: DetalleItinerarioComponentProps) => {
     const categories = responseValue?.selectedCategories ?? [];
     const result = await setPois(categories, lat, lng);
     setPuntosInteres(result);
-
+    setPoisLoaded(true);
     generateRandomPois();
   };
 
@@ -126,18 +127,11 @@ const Itinerario = ({ responseValue }: DetalleItinerarioComponentProps) => {
 
   useLayoutEffect(() => {
     const newMarkers: Marker[] = [];
-  
 
-      if (!isLoading) { // Verificar si mapDiv.current existe
-        const map = new Map({
-          container: mapDiv.current!,
-          style: "mapbox://styles/mapbox/outdoors-v12",
-          center: center,
-          zoom: 14
-        });
-  
-        if (map) {
-          map.flyTo({
+    try {
+
+        if (mapIti) {
+          mapIti.flyTo({
             zoom: 12.5,
             center: center
           });
@@ -153,80 +147,71 @@ const Itinerario = ({ responseValue }: DetalleItinerarioComponentProps) => {
             })
               .setLngLat([lng, lat])
               .setPopup(myLocationPopup)
-              .addTo(map);
+              .addTo(mapIti);
             newMarkers.push(newMarker);
           }
-
-          setMap(map);
-  
-        } else {
-          throw new Error("El mapa no está listo o existe un error");
         }
-      }
-
-      if (map) {
-        setLoading(false);
-      }
-    }, [poi, isLoading]);
-    if (isLoading) {
-      return <Loading />;
+    } catch (error) {
+      console.error("Ha ocurrido un error", error);
     }
+  }, [poi]);
+
 
   const generateRandomPoisForDay = async (): Promise<any[]> => {
     const [hoursS, minutesS] = (responseValue?.horaI ?? "").split(":").map((num) => parseInt(num)) || [0, 0];
     const startMinutes = hoursS * 60 + minutesS;
     const [hoursE, minutesE] = (responseValue?.horaF ?? "").split(":").map((num) => parseInt(num)) || [0, 0];
     const endMinutes = hoursE * 60 + minutesE;
-  
+
     const selectedPoisWithTime: any[] = [];
     let remainingTime = endMinutes - startMinutes;
     const poisForDay = [...pois]; // Copiar la lista de puntos de interés disponibles
     let currentMinutes = startMinutes; // Hora actual que se irá aumentando
-  
+
     while (remainingTime >= 60 && poisForDay.length > 0) {
       const poiIndex = Math.floor(Math.random() * poisForDay.length);
-      const poiObj:Result = poisForDay[poiIndex];
-  
+      const poiObj: Result = poisForDay[poiIndex];
+
       const type = poiObj.types[0]; // Obtener el primer tipo de lugar
 
       const category = tiposAtractivosTuristicos.find((cat) => cat.type === type); // Buscar la categoría en base al tipo
       const poiTime = category?.duration || 60; // Utilizar la duración de la categoría o un tiempo fijo de 60 minutos si no se encuentra la categoría
-  
+
       selectedPoisWithTime.push({
         poiObj,
         time: poiTime,
         startTime: currentMinutes // Guardar la hora de inicio
       });
-  
+
       remainingTime -= poiTime;
       poisForDay.splice(poiIndex, 1);
       currentMinutes += poiTime; // Aumentar la hora actual
     }
-  
+
     if (remainingTime > 0 && poisForDay.length > 0) {
       poisForDay.forEach((poiObj) => {
         if (remainingTime <= 0) {
           return;
         }
-  
+
         const type = poiObj.types[0]; // Obtener el primer tipo de lugar
         const category = tiposAtractivosTuristicos.find((cat) => cat.type === type); // Buscar la categoría en base al tipo
         const poiTime = category?.duration || 60; // Utilizar la duración de la categoría o un tiempo fijo de 60 minutos si no se encuentra la categoría
-  
+
         selectedPoisWithTime.push({
           poiObj,
           time: poiTime,
           startTime: currentMinutes // Guardar la hora de inicio
         });
-  
+
         remainingTime -= poiTime;
         currentMinutes += poiTime; // Aumentar la hora actual
       });
     }
-  
+
     return selectedPoisWithTime;
   };
-  
+
 
   const generateRandomPois = async () => {
     const days = responseValue?.dias || 0;
@@ -264,9 +249,9 @@ const Itinerario = ({ responseValue }: DetalleItinerarioComponentProps) => {
         marker.remove();
       });
 
-      map?.getStyle().layers.forEach(layer => {
+      mapIti?.getStyle().layers.forEach(layer => {
         if (layer.type === "line" && layer.id.startsWith("RouteString")) {
-          map?.removeLayer(layer.id);
+          mapIti?.removeLayer(layer.id);
         }
       });
       const newMarkers: Marker[] = [];
@@ -281,7 +266,7 @@ const Itinerario = ({ responseValue }: DetalleItinerarioComponentProps) => {
   /* TODO: GENERAR  ITINERARIO*/
   const GenerateItinerary = (randomPois: any[], day: number, newMarkers: Marker[], start: [number, number]) => {
     const [Startlat, Startlng] = start;
-    if (!map) {
+    if (!mapIti) {
       return;
     }
     const coords = [{ lat: Startlat, lng: Startlng }];
@@ -295,7 +280,7 @@ const Itinerario = ({ responseValue }: DetalleItinerarioComponentProps) => {
         <h2>${randomPois[day].poi[i].poiObj?.name}</h2>
         <p>${randomPois[day].poi[i].poiObj?.vicinity}</p>
       `);
-      const newMarker = new Marker().setPopup(popup).setLngLat([lng, lat]).addTo(map);
+      const newMarker = new Marker().setPopup(popup).setLngLat([lng, lat]).addTo(mapIti);
       newMarkers.push(newMarker);
     }
     const lastPoiCoord = coords[coords.length - 1];
@@ -314,20 +299,15 @@ const Itinerario = ({ responseValue }: DetalleItinerarioComponentProps) => {
     let kms = distance / 100;
     kms = Math.round(kms * 100);
     kms /= 100;
-    //    const minutes = Math.floor(duration / 60);
-
     const bounds = new LngLatBounds(
       start,
       end
     );
-
     for (const coord of coords) {
-      // Verificar si las coordenadas son números válidos
       if (typeof coord[0] === 'number' && typeof coord[1] === 'number' && !isNaN(coord[0]) && !isNaN(coord[1])) {
         const newCoord: [number, number] = [coord[0], coord[1]];
         bounds.extend(newCoord);
       } else {
-        // Manejar el caso en el que las coordenadas no sean válidas
         console.error('Coordenadas no válidas:', coord);
       }
     }
@@ -350,8 +330,8 @@ const Itinerario = ({ responseValue }: DetalleItinerarioComponentProps) => {
     }
 
     const layerId = `RouteString-${layerCounter++}`;
-    map?.addSource(layerId, sourceData);
-    map?.addLayer({
+    mapIti?.addSource(layerId, sourceData);
+    mapIti?.addLayer({
       id: layerId,
       type: 'line',
       source: layerId,
@@ -366,31 +346,31 @@ const Itinerario = ({ responseValue }: DetalleItinerarioComponentProps) => {
 
     })
   }
-
-
-
   const [selectedDay, setSelectedDay] = useState(0);
 
   const handleSelectDay = (event: any) => {
     setSelectedDay(event.target.value);
     GenerateItineraryDay(parseInt(event.target.value));
   };
-
   const dias = responseValue?.dias;
-  function renderStars(rating: number) {
+  //TODO: DARLE UNA KEY UNICA AL TYPHOGRAFY
+  function renderStars(rating: number, key: string) {
     const fullStars = Math.floor(rating);
     const stars = [];
-  
     if (!rating) {
       stars.push(
-        <StarIcon key="empty-star-1" style={{ fontSize: '16px' }} />,
-        <StarIcon key="empty-star-2" style={{ fontSize: '16px' }} />,
-        <StarIcon key="empty-star-3" style={{ fontSize: '16px' }} />,
-        <StarIcon key="empty-star-4" style={{ fontSize: '16px' }} />,
-        <StarIcon key="empty-star-5" style={{ fontSize: '16px' }} />
+        <Typography
+          key={`stars_${key}`}
+          variant="body1"
+          fontWeight="bold"
+          color="text.primary"
+          gutterBottom
+          noWrap
+        >
+          Sin calificación
+        </Typography>
       );
     }
-    
     for (let i = 0; i < fullStars; i++) {
       stars.push(<StarIcon key={`star-${i}`} style={{ color: 'gold', fontSize: '16px' }} />);
     }
@@ -399,36 +379,44 @@ const Itinerario = ({ responseValue }: DetalleItinerarioComponentProps) => {
     }
     return stars;
   }
-  
+
 
   const theme = useTheme();
-
   const [selectedPoiIndex, setSelectedPoiIndex] = useState<number>(-1);
+  const [selectecdayPoiIndex, setSelectecdayPoiIndex] = useState<number>(-1);
+  const [selectedPoiListIndex, setSelectedPoiListIndex] = useState<number>(-1);
   const [modalOpen, setModalOpen] = useState<boolean>(false);
 
-  const handlePoiChange = (index: number) => {
+  const handlePoiChange = (index: number, poi: any) => {
+    console.log(randomPois, index, poi.index);
     setSelectedPoiIndex(index);
+    setSelectecdayPoiIndex(poi.index);
     setModalOpen(true);
   };
 
-  const handleModalClose = (day: number) => {
-    if (selectedPoiIndex !== -1) {
-      const newRandomPois = [...randomPois];
-      const selectedPoi = pois[selectedPoiIndex];
-      const selectedPoiObj = newRandomPois[day].poi[selectedPoiIndex];
-      selectedPoiObj.poiObj = selectedPoi;
-      setRandomPois(newRandomPois);
-    }
-    setSelectedPoiIndex(-1);
+  const handleModalClose = () => {
     setModalOpen(false);
   };
+  const handleSaveChange = () => {
+    const selectedPoi = pois[selectedPoiListIndex];
+    const updatedRandomPois = [...randomPois];
+    console.log(selectedDay, selectedPoiIndex);
+    console.log(updatedRandomPois[selectecdayPoiIndex].poi);
+    updatedRandomPois[selectecdayPoiIndex].poi[selectedPoiIndex].poiObj = selectedPoi;
+    setRandomPois(updatedRandomPois);
+    handleModalClose();
+  };
 
-
+  const getTipoEnLugar = (tipo: string): string => {
+    const categoriaEncontrada = tiposAtractivosTuristicos.find((categoria) => categoria.type === tipo);
+    return categoriaEncontrada ? categoriaEncontrada.label : tipo;
+  };
   return (
     <>
-      {loading ? ( // Si loading es verdadero, mostramos la pantalla de carga
+      { !poisLoaded ? (
+        
         <LoadingScreen />
-      ) : ( // Si loading es falso, mostramos el contenido normal del componente
+      ) : (
         <>
           <div>
             <h1>.</h1>
@@ -441,7 +429,7 @@ const Itinerario = ({ responseValue }: DetalleItinerarioComponentProps) => {
               alignItems="stretch"
               spacing={1}
             >
-              <Grid item xs={12} sm={5}>
+              <Grid item xs={12} sm={8}>
                 <Card>
                   <Box
                     component="form"
@@ -469,7 +457,6 @@ const Itinerario = ({ responseValue }: DetalleItinerarioComponentProps) => {
                           </MenuItem>
                         ))}
                       </TextField>
-
                     )}
                   </Box>
                   <Divider />
@@ -483,13 +470,7 @@ const Itinerario = ({ responseValue }: DetalleItinerarioComponentProps) => {
                       noValidate
                       autoComplete="off"
                     >
-                      <div
-                        ref={mapDiv}
-                        style={{
-                          height: "70vh",
-                          width: "100%"
-                        }}
-                      ></div>
+                      <MapViewIti/>
                     </Box>
                   </CardContent>
                 </Card>
@@ -518,7 +499,6 @@ const Itinerario = ({ responseValue }: DetalleItinerarioComponentProps) => {
                         <Table>
                           <TableHead>
                             <TableRow>
-
                               <TableCell>Fecha</TableCell>
                               <TableCell>Hora</TableCell>
                               <TableCell>Lugar</TableCell>
@@ -545,7 +525,6 @@ const Itinerario = ({ responseValue }: DetalleItinerarioComponentProps) => {
                                       {format(parseISO(item.dateStart), 'MMMM dd yyyy')}
                                     </Typography>
                                   </TableCell>
-
                                 </TableRow>
                                 {item.poi.slice(0).map((poi: any, index: number) => (
                                   <TableRow key={`${item.numberday}-${index}`}>
@@ -557,7 +536,7 @@ const Itinerario = ({ responseValue }: DetalleItinerarioComponentProps) => {
                                         gutterBottom
                                         noWrap
                                       >
-                                   {format(addMinutes(parseISO(item.dateStart), poi.startTime), 'hh:mm a')}
+                                        {format(addMinutes(parseISO(item.dateStart), poi.startTime), 'hh:mm a')}
                                       </Typography>
                                     </TableCell>
                                     <TableCell>
@@ -575,38 +554,26 @@ const Itinerario = ({ responseValue }: DetalleItinerarioComponentProps) => {
                                       </Typography>
                                     </TableCell>
                                     <TableCell>
-                                      {renderStars(poi.poiObj?.rating)}
+                                      {renderStars(poi.poiObj?.rating, poi.poiObj?.place_id)}
                                     </TableCell>
                                     <TableCell align="left">
-                                          <ModalCalificacion poi={poi} />
+                                      <ModalCalificacion poi={poi} />
                                       <Tooltip title="Cambie el lugar" arrow>
                                         <IconButton
                                           sx={{
                                             '&:hover': { background: theme.colors.error.lighter },
                                             color: theme.palette.warning.main
                                           }}
-                                          onClick={() => handlePoiChange(index)}
+                                          onClick={() => handlePoiChange(index, item)}
                                           color="inherit"
                                           size="small"
                                         >
                                           <ChangeCircleIcon fontSize="small" />
                                         </IconButton>
                                       </Tooltip>
-                                      <Tooltip title="Dirección" arrow>
-                                        <IconButton
-                                          sx={{
-                                            '&:hover': { background: theme.colors.error.lighter },
-                                            color: theme.palette.error.main
-                                          }}
-                                          onClick={() => handlePoiChange(index)}
-                                          color="inherit"
-                                          size="small"
-                                        >
-                                          <NotListedLocationIcon fontSize="small" />
-                                        </IconButton>
-                                      </Tooltip>
+                                     <ModalDireccion poi={poi} lat={lat} lng={lng}/>
                                     </TableCell>
-                                    
+
                                   </TableRow>
                                 ))}
                               </React.Fragment>
@@ -623,46 +590,112 @@ const Itinerario = ({ responseValue }: DetalleItinerarioComponentProps) => {
               </Grid>
             </Grid>
           </Container>
-          <Modal open={modalOpen} onClose={handleModalClose}>
-        <Box
-          sx={{
-            position: "absolute",
-            top: "50%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
-            bgcolor: "background.paper",
-            boxShadow: 24,
-            p: 4,
-            maxWidth: 500,
-            maxHeight: 500,
-            overflow: "auto",
-          }}
-        >
-          <Typography variant="h6" component="h2" gutterBottom>
-            Seleccione un POI
-          </Typography>
-          <List>
-            {pois.map((poi: Result, index: number) => (
-              <ListItem
-                key={poi.place_id}
-                button
-                selected={index === selectedPoiIndex}
-                onClick={() => setSelectedPoiIndex(index)}
+          <Modal open={modalOpen} onClose={handleModalClose} sx={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+
+          }}>
+            <Box
+              sx={{ width: '80%', maxWidth: 600, bgcolor: 'white', p: 2, '& .MuiTextField-root': { m: 1, width: '25ch' } }}
+            >
+              <Box
+                sx={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  mb: 2,
+
+                }}
               >
-                <ListItemText primary={poi.name} secondary={poi.types[0]} />
-              </ListItem>
-            ))}
-          </List>
-          <Button variant="contained" onClick={() => handleModalClose(selectedPoiIndex)}>
-          Cerrar
-        </Button>
-        </Box>
-      </Modal>
+                <Typography
+                  variant="body1"
+                  fontWeight="bold"
+                  color="text.primary"
+                  gutterBottom
+                  noWrap
+                  fontSize={18}
+                >
+                  Seleccione uno
+                </Typography>
+                <Box>
+                  <Tooltip title="Guardar" arrow>
+                    <IconButton
+                      onClick={handleSaveChange}
+                      sx={{
+                        "&:hover": {
+                          background: theme.colors.primary.lighter,
+                        },
+                        color: theme.palette.success.main,
+                      }}
+                      color="inherit"
+                      size="small"
+                    >
+                      <SaveIcon fontSize="small" />
+                    </IconButton>
+                  </Tooltip>
+                  <Tooltip title="Cerrar" arrow>
+                    <IconButton
+                      onClick={handleModalClose}
+                      sx={{
+                        "&:hover": {
+                          background: theme.colors.primary.lighter,
+                        },
+                        color: theme.palette.error.light,
+                      }}
+                      color="inherit"
+                      size="small"
+                    >
+                      <CancelIcon fontSize="small" />
+                    </IconButton>
+                  </Tooltip>
+                </Box>
+              </Box>
+              <Box sx={{ maxHeight: 450, width: 560, overflow: "auto", mt: 2 }}>
+                <List>
+                  {pois.map((poi: Result, index: number) => (
+                    <ListItem
+                      key={poi.place_id}
+                      button
+                      selected={index === selectedPoiListIndex}
+                      onClick={() => setSelectedPoiListIndex(index)}
+                    >
+                      <Table>
+                        <TableBody>
+                          <TableRow hover>
+                            <TableCell colSpan={2}>
+                              <Typography
+                                variant="body1"
+                                fontWeight="bold"
+                                color="text.primary"
+                                gutterBottom
+                                noWrap
+                              >
+                                {poi.name}
+                              </Typography>
+                              <Typography variant="body2" color="text.secondary" noWrap>
+                                {getTipoEnLugar(poi.types[0])}
+                              </Typography>
+                            </TableCell>
+                            <TableCell align="right">
+                              {renderStars(poi.rating, poi.place_id)}
+                            </TableCell>
+                          </TableRow>
+                        </TableBody>
+                      </Table>
+                      {index === selectedPoiListIndex && <CheckIcon color="info" />}
+                    </ListItem>
+                  ))}
+                </List>
+              </Box>
+              <CardContent>
+              </CardContent>
+            </Box>
+          </Modal>
         </>
       )}
 
     </>
   );
 };
-
 export default Itinerario;

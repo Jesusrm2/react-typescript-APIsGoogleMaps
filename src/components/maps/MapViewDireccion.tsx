@@ -4,21 +4,21 @@ import { PlacesContext } from "../../contexts/places/PlacesContext"
 import { MapContext } from "../../contexts/maps/MapConetxt"
 import { Loading } from "./Loading"
 
-export const MapViewIti = () => {
+export const MapViewDirecciones = () => {
     
     const {isLoading, userLocation}=useContext(PlacesContext)
-    const {setMapIti} = useContext(MapContext)
+    const {setMapDir} = useContext(MapContext)
     const mapDiv = useRef<HTMLDivElement>(null);
 
     useLayoutEffect(() => {
       if(!isLoading){
-        const mapIti = new Map({
+        const mapDir = new Map({
             container: mapDiv.current!, // container ID
             style: 'mapbox://styles/mapbox/outdoors-v12', // style URL
             center: userLocation, // starting position [lng, lat]
             zoom: 14, // starting zoom
         });
-        setMapIti(mapIti);
+        setMapDir(mapDir);
       }
 
     }, [isLoading])
