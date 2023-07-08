@@ -101,6 +101,7 @@ export const MapProvider = ({children}:Props) => {
 
     const setPois = async (PointOfInterest: Category[], lat: number, long: number): Promise<any[]> => {
         let pois: Result[] = [];
+        console.log("Categorias", PointOfInterest);
         for (let i = 0; i < PointOfInterest.length; i++) {
           const pointOfInterest = PointOfInterest[i].type;
           const resp = await poiApi.get<IPoI>(`/json`, {
