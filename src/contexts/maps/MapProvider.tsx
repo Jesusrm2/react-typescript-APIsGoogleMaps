@@ -101,32 +101,35 @@ export const MapProvider = ({children}:Props) => {
 
     const setPois = async (PointOfInterest: Category[], lat: number, long: number): Promise<any[]> => {
         let pois: Result[] = [];
-        for (let i = 0; i < PointOfInterest.length; i++)  {
-            const pointOfInterest = PointOfInterest[i].type;
-            const resp = await poiApi.get<IPoI>(`/json`, {
-              params: {
-                location: lat + ',' + long,
-                types: pointOfInterest
-              }
-            });
+        for (let i = 0; i < PointOfInterest.length; i++) {
+          const pointOfInterest = PointOfInterest[i].type;
+          const resp = await poiApi.get<IPoI>(`/json`, {
+            params: {
+              location: lat + ',' + long,
+              types: pointOfInterest
+            }
+          });
       
+          if (Array.isArray(resp.data.results)) {
             pois = [...pois, ...resp.data.results];
           }
+        }
       
-          const placeIds = pois.map((poi) => poi.place_id);
+        const placeIds = pois.map((poi) => poi.place_id);
       
-          const responses = await Promise.all(
-            placeIds.map((placeId) => placeApi.get<Details>(`/json?place_id=${placeId}`))
-          );
+        const responses = await Promise.all(
+          placeIds.map((placeId) => placeApi.get<Details>(`/json?place_id=${placeId}`))
+        );
       
-          const detailsArr = responses
-            .map((response) => response.data.result)
-            .filter((details) => details?.business_status !== 'CLOSED_TEMPORARILY');
+        const detailsArr = responses
+          .map((response) => response.data.result)
+          .filter((details) => details?.business_status !== 'CLOSED_TEMPORARILY');
       
-          dispatch({ type: 'setPois', payload: detailsArr });
-        
+        dispatch({ type: 'setPois', payload: detailsArr });
+      
         return pois;
       };
+      
     
 
     const getRouteBetweenPoints =async (start:[number, number], end: [number, number]) => {
