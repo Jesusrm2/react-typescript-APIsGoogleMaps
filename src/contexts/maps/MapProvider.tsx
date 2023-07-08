@@ -111,6 +111,7 @@ export const MapProvider = ({children}:Props) => {
           });
       
           if (Array.isArray(resp.data.results)) {
+            console.log("hola desde set pois", resp.data.results);
             pois = [...pois, ...resp.data.results];
           }
         }
