@@ -13,17 +13,16 @@ Esta aplicación consiste en el de la API de Google Maps conjunto la API de Mapb
 ## Tecnologías
 ***
 Una lista de tecnologías utilizadas dentro del proyecto:
-* [React](https://example.com): Version 12.3 
-* [Technologie name](https://example.com): Version 2.34
-* [Library name](https://example.com): Version 1234
+* [React]([https://example.com](https://es.react.dev/learn/installation)): Version 18.2.0
+* [Vite]([https://example.com](https://vitejs.dev/guide/)):Version 4.3.9
+* [axios]([[https://example.com](https://nodejs.org/en)](https://axios-http.com/es/docs/intro)):Version 1.4.0
+* [Mui]([[https://example.com](https://vitejs.dev/guide/)](https://mui.com/core/)):Version 4.3.9
 ## Installation
 ***
-A little intro about the installation. 
+Introducción sobre la instalación. 
 ```
-$ git clone https://example.com
-$ cd ../path/to/the/file
 $ npm install
-$ npm start
+$ npm run dev
 ```
 Side information: To use the application in a special environment use ```lorem ipsum``` to start
 ## Collaboration
