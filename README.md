@@ -7,12 +7,13 @@
 ### Información General
 ***
 Esta aplicación consiste en el de la API de Google Maps conjunto la API de Mapbox de tal manera obtener puntos de interés basándose con las preferencias del usuario. 
-### Screenshot
-![Image text](https://www.united-internet.de/fileadmin/user_upload/Brands/Downloads/Logo_IONOS_by.jpg)
-## Technologies
+### Imagenes
+![Sin título](https://github.com/Jesusrm2/react-typescript-APIsGoogleMaps/assets/135676762/b7e063d4-f97a-4956-8090-180f8a04e4f2)
+
+## Tecnologías
 ***
-A list of technologies used within the project:
-* [Technologie name](https://example.com): Version 12.3 
+Una lista de tecnologías utilizadas dentro del proyecto:
+* [React](https://example.com): Version 12.3 
 * [Technologie name](https://example.com): Version 2.34
 * [Library name](https://example.com): Version 1234
 ## Installation
