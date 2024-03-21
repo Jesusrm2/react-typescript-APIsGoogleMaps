@@ -4,7 +4,7 @@ const poiApi = axios.create({
     baseURL: '/maps/api/place/nearbysearch',
     params:{
     radius: 5000,
-    key: 'AIzaSyC4i2ej2NQxOwvw9hpGkTZVpADP8FYAuKk'
+     key: 'api_key',//api key google maps
     }
     });
 
