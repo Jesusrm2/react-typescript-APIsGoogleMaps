@@ -7,7 +7,7 @@ const directionsApi = axios.create({
         language: 'es',
         overview:'simplified',
         steps:false,
-        access_token: 'your_apikey' //Api key google maps
+        access_token: 'your_apikey' //Api key mapbox
     }
 })
 
