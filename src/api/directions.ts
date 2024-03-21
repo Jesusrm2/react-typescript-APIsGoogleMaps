@@ -7,7 +7,7 @@ const directionsApi = axios.create({
         language: 'es',
         overview:'simplified',
         steps:false,
-        access_token: 'pk.eyJ1IjoiamVzdXNybTAxIiwiYSI6ImNsZGYybDM1azBqaTEzd3I4d2dyYzAxM3AifQ.9cIHabSjoqi5B9cUVusrWw'
+        access_token: 'your_apikey' //Api key google maps
     }
 })
 
